@@ -1,0 +1,1172 @@
+<!doctype html>
+<html lang="mn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#173a7a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Гэрийн санхүү" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <title>Гэрийн санхүү — Данс, ханш, үнэ, зээл</title>
+  <style>
+    :root{
+      --bg:#eef0ec;--surface:#fff;--ink:#16201b;--ink2:#39433e;--muted:#758079;
+      --line:#e2e7e2;--line2:#eff2ee;--accent:#0e5246;--income:#15805a;--expense:#c2422e;
+      --income-bg:#e7f3ed;--expense-bg:#faeae6;--warning:#7a5b12;--warning-bg:#fbf3e2;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:radial-gradient(120% 60% at 50% -10%,#f7f9f5 0%,var(--bg) 55%);color:var(--ink);font-family:var(--sans);min-height:100vh}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+    .app{max-width:630px;margin:0 auto;min-height:100vh;padding:22px 16px 34px;display:flex;flex-direction:column;gap:14px}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 2px 4px}.brand-left{display:flex;align-items:center;gap:9px;min-width:0}.brand-mark{width:31px;height:31px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 2px 8px rgba(14,82,70,.22);flex:0 0 auto;font-size:17px}.brand-name{font-size:16px;font-weight:720;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .header-actions{display:flex;gap:6px;align-items:center}.icon-btn{width:33px;height:33px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink2);display:grid;place-items:center;transition:.16s}.icon-btn:hover{border-color:#b7c3ba;color:var(--accent);background:#f8faf8}.icon-btn:active{transform:translateY(1px)}.spin{animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .card,.hero{background:var(--surface);border:1px solid var(--line);box-shadow:0 1px 2px rgba(20,30,25,.035)}.card{border-radius:16px;padding:17px}.hero{border-radius:18px;padding:20px}.card-title{font-size:13.5px;font-weight:720;letter-spacing:-.01em}.muted{color:var(--muted)}
+    .net-status{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);white-space:nowrap}.net-dot{width:7px;height:7px;border-radius:50%;background:#c6ccc7}.net-dot.live{background:var(--income);box-shadow:0 0 0 3px rgba(21,128,90,.11)}.net-dot.error{background:var(--expense);box-shadow:0 0 0 3px rgba(194,66,46,.1)}
+    .notice{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #ead9ae;background:var(--warning-bg);color:var(--warning);border-radius:11px;padding:10px 12px;font-size:12px;line-height:1.4}.notice button{border:1px solid #c99b2e;background:#fff;color:var(--warning);border-radius:8px;padding:5px 10px;font-weight:700;font-size:11px}.notice button:hover{background:#fff9eb}
+    .tab{display:none}.tab.active{display:block}.section-stack{display:flex;flex-direction:column;gap:14px}.tab-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}.tab-title-row .right-info{font-size:11px;color:var(--muted);text-align:right}
+    /* finance */
+    .monthnav{display:flex;align-items:center;gap:2px}.monthnav button{width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink2);font-size:18px;line-height:1}.monthnav button:hover{border-color:#c5d0c7;color:var(--accent)}.month-label{min-width:74px;text-align:center;font-size:13px;font-weight:650;color:var(--ink2)}
+    .hero-label{font-size:11.5px;text-transform:uppercase;font-weight:700;letter-spacing:.06em;color:var(--muted)}.hero-value{font-size:42px;font-weight:690;letter-spacing:-.045em;line-height:1.06;margin-top:6px}.hero-value.neg{color:var(--expense)}.hero-value .cur{font-size:23px;color:var(--muted);margin-left:4px}.bar{margin-top:16px}.bar-track{height:9px;background:var(--income-bg);border-radius:9px;overflow:hidden}.bar-fill{height:100%;background:linear-gradient(90deg,#d9583f,var(--expense));border-radius:9px;transition:width .35s ease}.bar-meta{display:flex;justify-content:space-between;gap:8px;margin-top:9px;color:var(--ink2);font-size:12px}.bar-meta b{margin-left:2px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:middle}.dot.in{background:var(--income)}.dot.ex{background:var(--expense)}
+    .today-btn{width:100%;border:0;border-radius:14px;background:var(--accent);color:#fff;padding:14px 16px;font-weight:760;font-size:15px;box-shadow:0 4px 14px rgba(14,82,70,.19);transition:.15s}.today-btn:hover{filter:brightness(1.07)}.today-btn:active{transform:translateY(1px)}.section-h{font-size:11.5px;font-weight:730;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin:3px 2px 10px}.month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mcard{text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 14px;min-height:91px;display:flex;flex-direction:column;gap:7px;box-shadow:0 1px 2px rgba(20,30,25,.025);transition:.15s}.mcard:hover{border-color:#c3cec6;box-shadow:0 5px 14px rgba(20,30,25,.065);transform:translateY(-1px)}.mcard.cur{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}.mcard-top{display:flex;justify-content:space-between;gap:5px}.mcard-name{font-size:13px;font-weight:650;color:var(--ink2)}.mcard-now{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:var(--accent);color:#fff;padding:2px 6px;border-radius:5px}.mcard-bal{font-size:18px;font-weight:690;letter-spacing:-.035em;margin-top:auto}.mcard-bal.neg{color:var(--expense)}.mcard-io{display:flex;gap:10px;font-size:11px;font-weight:650}.mcard-io .in{color:var(--income)}.mcard-io .ex{color:var(--expense)}.mcard.empty{background:#fafbfa}.mcard.empty .mcard-bal{color:#bec7bf;font-weight:500}
+    .detail-head .back{display:flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--surface);padding:7px 10px;border-radius:9px;color:var(--ink2);font-size:13px;font-weight:700}.detail-head .back:hover{border-color:#bfcac2;color:var(--accent)}.detail-title{font-size:14px;font-weight:750}.day-strip-head,.note-head,.rates-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.today-chip{border:1px solid var(--accent);background:var(--income-bg);color:var(--accent);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:750}.daystrip,.city-strip{display:flex;gap:7px;overflow-x:auto;padding:0 2px 8px;margin:12px -2px 0;scrollbar-width:thin}.daystrip::-webkit-scrollbar,.city-strip::-webkit-scrollbar{height:5px}.daystrip::-webkit-scrollbar-thumb,.city-strip::-webkit-scrollbar-thumb{background:#d8ddd7;border-radius:4px}.chip{flex:0 0 auto;width:40px;border:1px solid var(--line);background:#fcfdfc;border-radius:11px;padding:7px 0 6px;display:flex;flex-direction:column;align-items:center;gap:3px}.chip .cwd{font-size:9px;color:var(--muted);font-weight:700}.chip .cn{font-size:15px;color:var(--ink2);font-weight:720}.chip .cdot{width:4px;height:4px;border-radius:50%;background:transparent}.chip.has .cdot{background:var(--accent)}.chip.today:not(.sel){border-color:var(--accent)}.chip.today:not(.sel) .cn{color:var(--accent)}.chip.sel{background:var(--accent);border-color:var(--accent)}.chip.sel .cwd,.chip.sel .cn{color:#fff}.chip.sel .cdot{background:#fff}.day-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:0 2px 14px;border-bottom:1px solid var(--line2)}.day-label{font-size:14px;font-weight:700}.day-net{font-size:13.5px;font-weight:760}.day-net.pos{color:var(--income)}.day-net.neg{color:var(--expense)}
+    .add{display:flex;flex-direction:column;gap:11px;margin-top:15px}.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--line2);padding:4px;border-radius:11px}.seg button{border:0;background:transparent;padding:9px;border-radius:8px;color:var(--muted);font-size:13px;font-weight:720}.seg.expense button.active{background:#fff;color:var(--expense);box-shadow:0 1px 3px rgba(20,30,25,.12)}.seg.income button.active{background:#fff;color:var(--income);box-shadow:0 1px 3px rgba(20,30,25,.12)}.amount-field{position:relative}.amount-field input{width:100%;border:1px solid var(--line);border-radius:11px;padding:13px 39px 13px 14px;font:650 25px var(--mono);color:var(--ink);background:#fcfdfc;outline:0}.amount-field input:focus,.field input:focus,.field select:focus,.note textarea:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}.amount-field span{position:absolute;right:15px;top:50%;transform:translateY(-50%);font:19px var(--mono);color:var(--muted)}input[type=number]{-moz-appearance:textfield}input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field>span{font-size:11.5px;font-weight:680;color:var(--ink2)}.field i{color:var(--muted);font-weight:450;font-style:normal}.field input,.field select,.cur-sel{width:100%;height:41px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fcfdfc;color:var(--ink);outline:0;font-size:13.5px}.addbtn{border:0;border-radius:12px;padding:13px;color:#fff;font-weight:760;font-size:14px}.addbtn.expense{background:var(--expense)}.addbtn.income{background:var(--income)}.addbtn:disabled{background:#cad2cc}.day-list{display:flex;flex-direction:column;gap:11px;margin-top:16px;padding-top:15px;border-top:1px solid var(--line2)}.entry{display:flex;align-items:center;gap:9px}.entry-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto}.entry-dot.income{background:var(--income)}.entry-dot.expense{background:var(--expense)}.entry-main{min-width:0;flex:1;display:flex;flex-direction:column}.entry-cat{font-size:13.5px;font-weight:600}.entry-desc{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.entry-amt{font-weight:720;font-size:13px}.entry-amt.income{color:var(--income)}.entry-amt.expense{color:var(--ink2)}.delbtn{border:0;background:transparent;color:#bdc6bf;font-size:18px;padding:2px 5px;border-radius:6px}.delbtn:hover{color:var(--expense);background:var(--expense-bg)}.confirm{display:flex;gap:6px}.confirm button{border:0;border-radius:7px;padding:5px 8px;font-size:11px;font-weight:750}.c-yes{background:var(--expense);color:#fff}.c-no{background:var(--line2);color:var(--ink2)}.empty{text-align:center;color:var(--muted);font-size:13px;line-height:1.6;padding:23px 8px}.note-status{font-size:11px;color:var(--muted)}.note-status.saved{color:var(--income)}.note textarea{width:100%;border:1px solid var(--line);border-radius:11px;margin-top:11px;padding:12px;resize:vertical;min-height:94px;background:#fcfdfc;color:var(--ink);font-size:13px;line-height:1.55;outline:0}
+    /* rates */
+    .conv-card{display:flex;flex-direction:column}.conv-row{display:flex;gap:10px;align-items:stretch;margin-top:12px}.conv-amount,.conv-result{height:50px;flex:1;min-width:0;border-radius:11px;padding:0 13px;font:650 20px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.conv-amount{border:1px solid var(--line);background:#fcfdfc;color:var(--ink);outline:0}.conv-amount:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}.conv-result{display:flex;align-items:center;color:var(--accent);background:var(--income-bg);border:1px solid #c7e3d7}.cur-sel{width:90px;min-width:90px;height:50px;font-weight:750;appearance:auto}.conv-swap{display:flex;justify-content:center;margin:9px 0}.conv-swap button{height:34px;width:34px;border-radius:50%;border:1px solid var(--line);background:#fff;color:var(--accent);font-size:17px;transform:rotate(90deg)}.conv-swap button:hover{background:var(--income-bg);border-color:var(--accent)}.conv-note{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}.upd{font-size:10.8px;color:var(--muted);text-align:right}.rate-list{display:flex;flex-direction:column;margin-top:8px}.rate-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-top:1px solid var(--line2)}.rate-row:first-child{border-top:0}.rate-l{display:flex;align-items:center;gap:11px}.rate-sym{height:34px;width:34px;border-radius:10px;background:var(--line2);display:grid;place-items:center;font-size:16px;font-weight:750;color:var(--ink2)}.rate-code{font-size:13.5px;font-weight:750}.rate-name{font-size:11.5px;color:var(--muted);margin-top:1px}.rate-val{font-size:14.5px;font-weight:750}.source{font-size:10.5px;color:var(--muted);text-align:right;margin-top:13px}
+    /* weather */
+    .city-chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 13px;color:var(--ink2);font-size:13px;font-weight:700;white-space:nowrap}.city-chip.sel{background:var(--accent);border-color:var(--accent);color:#fff}.city-chip:hover:not(.sel){border-color:#bfcbc3}.wx-current{text-align:center;display:flex;flex-direction:column;align-items:center;padding:22px 18px}.wx-city{font-size:13px;font-weight:720;color:var(--ink2)}.wx-main{display:flex;align-items:center;gap:12px;margin:10px 0 1px}.wx-icon{font-size:54px;line-height:1}.wx-temp{font-size:54px;font-weight:690;letter-spacing:-.05em}.wx-desc{font-size:15px;font-weight:600;color:var(--ink2)}.wx-meta{display:flex;justify-content:center;flex-wrap:wrap;gap:13px;margin-top:15px;color:var(--muted);font-size:12px}.fc-list{display:flex;flex-direction:column;margin-top:9px}.fc-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:15px;padding:10px 0;border-top:1px solid var(--line2)}.fc-row:first-child{border-top:0}.fc-day{font-size:13.5px;font-weight:600}.fc-icon{font-size:20px}.fc-temp{font-size:13.5px}.fc-temp b{font-weight:750}.fc-temp i{font-style:normal;color:var(--muted);margin-left:8px}.forecast-detail{font-size:11px;color:var(--muted);margin-top:2px}
+    /* bottom nav */
+    .tabbar{position:sticky;bottom:8px;margin-top:auto;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;border:1px solid var(--line);background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-radius:16px;padding:6px;box-shadow:0 8px 24px rgba(20,30,25,.1);z-index:4}.tabbar button{border:0;background:transparent;border-radius:11px;padding:9px 4px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:720}.tabbar .tab-icon{font-size:19px;line-height:1}.tabbar button.active{color:#fff;background:var(--accent)}.tabbar button:not(.active):hover{background:var(--line2);color:var(--ink2)}
+    .loadingline{padding:22px 10px;text-align:center;color:var(--muted);font-size:13px}.empty-state{text-align:center;color:var(--muted);font-size:13px;padding:20px 5px;line-height:1.6}
+
+    /* product prices */
+    .price-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}.price-hero .hero-value{font-size:31px}.price-hero .hero-label{margin-bottom:5px}.price-date{font-size:12px;color:var(--muted);line-height:1.5;text-align:right;max-width:160px}.price-cats{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 7px;margin:0 -1px;scrollbar-width:thin}.price-cats::-webkit-scrollbar{height:5px}.price-cats::-webkit-scrollbar-thumb{background:#d8ddd7;border-radius:4px}.price-cat{flex:0 0 auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink2);padding:7px 11px;font-size:12px;font-weight:720}.price-cat:hover{border-color:#bfcbc2}.price-cat.active{background:var(--accent);border-color:var(--accent);color:#fff}.price-list{display:flex;flex-direction:column;margin-top:8px}.price-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-top:1px solid var(--line2)}.price-row:first-child{border-top:0}.price-main{min-width:0;display:flex;align-items:center;gap:10px}.price-icon{width:35px;height:35px;border-radius:10px;background:var(--line2);display:grid;place-items:center;flex:0 0 auto;font-size:17px}.price-name{font-size:13px;line-height:1.25;font-weight:670;color:var(--ink)}.price-sub{display:flex;align-items:center;gap:5px;margin-top:2px;color:var(--muted);font-size:10.5px}.price-value{flex:0 0 auto;text-align:right}.price-amount{font:700 14px var(--mono);color:var(--ink);white-space:nowrap}.price-delta{font-size:10.5px;margin-top:3px;font-weight:700}.price-delta.up{color:var(--expense)}.price-delta.down{color:var(--income)}.price-delta.same{color:var(--muted)}.price-empty{padding:20px 10px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6}.price-source{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:13px;text-align:right}.price-source a{color:var(--accent);text-decoration:none;font-weight:650}.price-source a:hover{text-decoration:underline}.tiny-live{font-size:11px;color:var(--muted);white-space:nowrap}
+    /* loans */
+    .loan-toolbar{display:flex;flex-direction:column;gap:10px}.loan-search{width:100%;height:43px;border:1px solid var(--line);border-radius:11px;padding:0 12px;background:#fcfdfc;color:var(--ink);outline:0;font-size:13px}.loan-search:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}
+    .loan-filter-row{display:flex;gap:7px;overflow-x:auto;padding:0 1px 4px;scrollbar-width:thin}.loan-filter{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:10px;padding:7px 10px;font-size:11.5px;font-weight:730}.loan-filter.active{background:var(--accent);border-color:var(--accent);color:#fff}.loan-provider-list{display:flex;flex-direction:column;gap:10px}.loan-provider{width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:15px;padding:14px;box-shadow:0 1px 2px rgba(20,30,25,.035);transition:.15s}.loan-provider:hover{border-color:#b8c7bc;box-shadow:0 5px 14px rgba(20,30,25,.06);transform:translateY(-1px)}.loan-provider-top{display:flex;align-items:center;gap:11px}.loan-logo{height:46px;width:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#fff;border:1px solid #e3e8e4;box-shadow:0 2px 7px rgba(20,30,25,.08);flex:0 0 auto}.loan-logo img{width:100%;height:100%;padding:5px;object-fit:contain;display:block;background:#fff}.loan-logo-fallback{display:none;width:100%;height:100%;align-items:center;justify-content:center;padding:4px;text-align:center;background:#fff;font-weight:850;font-size:12px;letter-spacing:-.05em;line-height:1}.loan-logo-fallback.brand-lend{color:#f57a00}.loan-logo-fallback.brand-moni{color:#d72c2c}.loan-logo-fallback.brand-pocket{color:#6552d8}.loan-logo-fallback.brand-storepay{color:#f05b45}.loan-logo-fallback.brand-ard{color:#122a4a}.loan-logo-fallback.brand-ikh{color:#1873b9}.loan-logo-fallback.brand-payon{color:#1375d2}.loan-logo-fallback.brand-simple{color:#0a9c78}.loan-logo-fallback.brand-mbank{color:#1c63d6}.loan-logo-lg{width:54px;height:54px;border-radius:15px}.loan-brand-line{display:flex;align-items:center;gap:11px}.loan-brand-line .hero-value{margin-top:3px}.loan-provider-copy{min-width:0;flex:1}.loan-provider-name{font-size:14px;font-weight:780}.loan-provider-desc{font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:2px}.loan-provider-arrow{font-size:23px;color:var(--muted);font-weight:350}.loan-provider-meta{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}.loan-pill{border:1px solid var(--line);border-radius:7px;background:#fbfcfb;padding:4px 7px;color:var(--ink2);font-size:10.5px;font-weight:700}.loan-pill.rate{background:var(--income-bg);color:var(--accent);border-color:#cbe6d9}.loan-disclaimer{font-size:10.8px;line-height:1.5;color:var(--muted);margin:1px 2px 0}.loan-back{display:flex;align-items:center;gap:4px;border:1px solid var(--line);background:var(--surface);padding:7px 10px;border-radius:9px;color:var(--ink2);font-size:13px;font-weight:700}.loan-back:hover{border-color:#bfcac2;color:var(--accent)}.loan-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.loan-source{font-size:11px;color:var(--accent);font-weight:720;text-decoration:none}.loan-source:hover{text-decoration:underline}.loan-summary{margin-top:2px}.loan-product-list{display:flex;flex-direction:column;gap:10px}.loan-product{border:1px solid var(--line);border-radius:14px;background:#fff;padding:13px}.loan-product-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.loan-product-name{font-size:13.5px;font-weight:780}.loan-product-sub{font-size:11px;line-height:1.45;color:var(--muted);margin-top:3px}.loan-product-rate{font-size:12px;font-weight:800;color:var(--accent);white-space:nowrap;background:var(--income-bg);border:1px solid #cbe6d9;border-radius:8px;padding:5px 7px}.loan-product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:11px}.loan-stat{border-radius:9px;background:#f7f9f7;padding:8px}.loan-stat span{display:block;color:var(--muted);font-size:9.5px;font-weight:700;line-height:1.25}.loan-stat b{display:block;font-size:11px;color:var(--ink2);margin-top:2px;line-height:1.25}.loan-calc-open{width:100%;border:0;border-radius:10px;background:var(--accent);color:#fff;padding:10px 11px;font-size:12.5px;font-weight:760;margin-top:11px}.loan-calc-open:hover{filter:brightness(1.08)}.loan-calc-grid{display:grid;grid-template-columns:1fr;gap:12px}.loan-config-card{padding:15px}.loan-calc-title{font-size:14px;font-weight:800;margin-bottom:13px}.loan-select{width:100%;height:41px;border:1px solid var(--line);border-radius:10px;padding:0 10px;background:#fcfdfc;color:var(--ink);outline:0;font-size:13px}.loan-select:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}.loan-range-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:14px 0 6px}.loan-range-row label{font-size:11.5px;font-weight:710;color:var(--ink2)}.loan-range-row b{font-size:13px;color:var(--accent);font-family:var(--mono)}.loan-range{width:100%;accent-color:var(--accent)}.loan-numeric{height:40px;width:100%;border:1px solid var(--line);border-radius:10px;background:#fcfdfc;padding:0 11px;font:650 15px var(--mono);color:var(--ink);outline:0}.loan-numeric:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}.loan-fixed-rate{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;border:1px solid #cbe6d9;background:var(--income-bg);border-radius:11px;padding:10px 11px}.loan-fixed-rate span{font-size:11.5px;font-weight:720;color:var(--ink2)}.loan-fixed-rate b{font:800 13px var(--mono);color:var(--accent);text-align:right}.loan-fixed-rate-note{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:6px}.loan-tiny{font-size:10.5px;color:var(--muted);line-height:1.45;margin-top:6px}.loan-result{background:linear-gradient(145deg,#0e5246 0%,#153b57 100%);border-radius:16px;padding:17px;color:#fff;box-shadow:0 7px 17px rgba(14,82,70,.2)}.loan-result-label{font-size:11px;color:rgba(255,255,255,.72);font-weight:720}.loan-result-value{font:780 29px var(--mono);letter-spacing:-.05em;line-height:1.1;margin-top:6px}.loan-result-value .loan-cur{font-size:16px;margin-left:3px;color:rgba(255,255,255,.78)}.loan-pie-line{display:flex;align-items:center;gap:12px;margin:16px 0 14px}.loan-pie{width:72px;height:72px;border-radius:50%;background:conic-gradient(#98b9ff 0 68%,#f04b3d 68% 100%);position:relative;flex:0 0 auto}.loan-pie:after{content:'';position:absolute;inset:9px;border-radius:50%;background:#153b57}.loan-pie-center{position:absolute;inset:0;z-index:1;display:grid;place-items:center;text-align:center;font-size:10px;font-weight:850}.loan-pie-labels{display:flex;flex-direction:column;gap:6px;font-size:11.5px;flex:1}.loan-pie-labels div{display:flex;justify-content:space-between;gap:8px}.loan-pie-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}.loan-pie-dot.principal{background:#98b9ff}.loan-pie-dot.interest{background:#f04b3d}.loan-result-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.16);padding-top:12px;font-size:12px;font-weight:690}.loan-result-total b{font:790 15px var(--mono)}.eligibility{margin-top:12px}.eligibility-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.eligibility-grid .field{gap:5px}.eligibility-input{height:39px;width:100%;border:1px solid var(--line);border-radius:10px;background:#fcfdfc;padding:0 10px;font:620 13px var(--mono);color:var(--ink);outline:0}.eligibility-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(14,82,70,.09)}.eligibility-status{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fbfcfb}.eligibility-status.good{border-color:#b9dfcc;background:var(--income-bg)}.eligibility-status.warn{border-color:#e7d7ab;background:var(--warning-bg)}.eligibility-status.bad{border-color:#efcbc5;background:var(--expense-bg)}.eligibility-title{font-size:12.5px;font-weight:800}.eligibility-copy{font-size:10.8px;line-height:1.5;color:var(--ink2);margin-top:3px}.eligibility-ratio{font:770 17px var(--mono);float:right}.loan-schedule{margin-top:2px;overflow:hidden}.loan-schedule table{width:100%;border-collapse:collapse;font-size:11.5px}.loan-schedule th{text-align:right;color:var(--muted);font-size:10px;padding:8px 5px;border-bottom:1px solid var(--line2)}.loan-schedule th:first-child,.loan-schedule td:first-child{text-align:left}.loan-schedule td{text-align:right;padding:9px 5px;border-bottom:1px solid var(--line2);font-family:var(--mono);color:var(--ink2)}.loan-schedule td:first-child{font-family:var(--sans);font-weight:700}.loan-schedule-more{font-size:10.5px;color:var(--muted);text-align:right;margin-top:8px}.loan-warning{display:flex;gap:8px;align-items:flex-start;margin-top:12px;background:var(--warning-bg);border:1px solid #ead9ae;color:var(--warning);padding:10px 11px;border-radius:11px;font-size:10.8px;line-height:1.45}
+    @media(min-width:570px){.loan-calc-grid{grid-template-columns:1fr 1fr}.loan-result{height:100%}}
+    @media(max-width:430px){.app{padding:18px 13px 28px}.hero-value{font-size:36px}.month-grid{gap:8px}.mcard{padding:12px;min-height:86px}.mcard-bal{font-size:16px}.cur-sel{width:78px;min-width:78px}.row2{gap:8px}.field input,.field select{font-size:12.5px}.bar-meta{font-size:11px}.conv-amount,.conv-result{font-size:18px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+    :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  
+
+    /* ==================== Premium visual refresh ==================== */
+    :root{
+      --bg:#f3f6fc;--surface:rgba(255,255,255,.93);--ink:#11213d;--ink2:#3c4c66;--muted:#71809a;
+      --line:#dfe7f5;--line2:#edf2fa;--accent:#234a9c;--accent-2:#497cff;--navy:#102a60;
+      --income:#11976a;--expense:#e4514d;--income-bg:#e8f8f1;--expense-bg:#fff0ee;
+      --warning:#8d6408;--warning-bg:#fff7df;
+    }
+    html{background:var(--bg)}
+    body{
+      background:
+        radial-gradient(900px 520px at 18% -10%,rgba(115,157,255,.22),transparent 63%),
+        radial-gradient(760px 500px at 106% 15%,rgba(92,214,190,.13),transparent 60%),
+        linear-gradient(180deg,#f9fbff 0%,var(--bg) 47%,#eef3fb 100%);
+      color:var(--ink);overflow-x:hidden;
+    }
+    body:before,body:after{content:'';position:fixed;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(1px)}
+    body:before{width:340px;height:340px;right:-170px;bottom:110px;background:radial-gradient(circle,rgba(73,124,255,.10),transparent 70%)}
+    body:after{width:280px;height:280px;left:-180px;top:38%;background:radial-gradient(circle,rgba(17,151,106,.08),transparent 72%)}
+    .app{max-width:740px;padding:24px 18px 104px;gap:17px}
+    .brand{padding:4px 2px 8px}
+    .brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#2e61d4,#17336e);box-shadow:0 8px 20px rgba(34,72,157,.24);font-size:18px}
+    .brand-name{font-size:17px;font-weight:800;letter-spacing:-.035em;color:#182b4d}
+    .header-actions{gap:8px}.icon-btn{width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.82);border-color:#d9e3f3;box-shadow:0 4px 12px rgba(31,54,97,.05)}
+    .icon-btn:hover{border-color:#a8bef2;color:var(--accent);background:#fff;box-shadow:0 8px 18px rgba(31,54,97,.09)}
+    .monthnav{padding:3px;border:1px solid #dde6f5;border-radius:12px;background:rgba(255,255,255,.78);box-shadow:0 4px 12px rgba(31,54,97,.045)}
+    .monthnav button{border:0;border-radius:8px;background:transparent;width:28px;height:28px;color:var(--accent)}.monthnav button:hover{background:#edf3ff;color:#173a7a}
+    .month-label{min-width:80px;font-weight:760;color:#3b4b66}
+    .card,.hero{border:1px solid rgba(216,227,244,.96);box-shadow:0 12px 30px rgba(36,63,110,.07);backdrop-filter:blur(12px)}
+    .card{border-radius:21px;padding:18px;background:var(--surface)}
+    .hero{border-radius:24px;padding:22px;position:relative;overflow:hidden;background:linear-gradient(140deg,#173a7a 0%,#214ba0 49%,#3363c4 100%);color:#fff;box-shadow:0 17px 35px rgba(27,61,137,.22)}
+    .hero:before{content:'';position:absolute;width:240px;height:240px;border-radius:50%;right:-86px;top:-116px;background:radial-gradient(circle,rgba(178,206,255,.47),rgba(178,206,255,0) 69%);pointer-events:none}
+    .hero:after{content:'';position:absolute;width:170px;height:170px;border-radius:50%;left:44%;bottom:-145px;background:rgba(32,221,184,.13);filter:blur(2px);pointer-events:none}
+    .hero>*{position:relative;z-index:1}.hero-label{color:rgba(239,245,255,.76);font-weight:760;letter-spacing:.085em}.hero-value{color:#fff;font-weight:770;text-shadow:0 1px 1px rgba(0,0,0,.08)}.hero-value.neg{color:#ffd3cf}.hero-value .cur{color:rgba(235,243,255,.75)}
+    .hero .loan-tiny[style]{color:rgba(238,245,255,.78)!important}.price-hero .price-date{color:rgba(239,245,255,.78)}.price-hero .price-date b{color:#fff}
+    .bar-track{height:10px;background:rgba(255,255,255,.18)}.bar-fill{background:linear-gradient(90deg,#ffb198,#ef6257)}.bar-meta{color:rgba(248,251,255,.87)}.bar-meta b{color:#fff}.dot.in{background:#70e4ba}.dot.ex{background:#ff9f98}
+    .net-status{font-weight:700;color:#667690}.net-dot.live{background:#1db880;box-shadow:0 0 0 4px rgba(29,184,128,.12)}
+    .notice{border-radius:14px;border-color:#f0d797;background:#fff8e8;box-shadow:0 5px 13px rgba(141,100,8,.05)}
+    .today-btn,.loan-calc-open{background:linear-gradient(135deg,#2d5ed2,#214394);box-shadow:0 10px 20px rgba(35,74,156,.19);letter-spacing:-.01em}
+    .today-btn{border-radius:16px;padding:15px 17px}.today-btn:hover,.loan-calc-open:hover{filter:brightness(1.06);transform:translateY(-1px)}
+    .section-h{font-size:11px;color:#71819b;margin:6px 4px 11px}.month-grid{gap:12px}
+    .mcard{border-radius:17px;padding:14px 15px;border-color:#e0e8f5;background:rgba(255,255,255,.88);box-shadow:0 7px 17px rgba(31,54,97,.045)}
+    .mcard:hover{border-color:#b8c9f0;box-shadow:0 14px 25px rgba(31,54,97,.10);transform:translateY(-2px)}.mcard.cur{border-color:#597ee0;box-shadow:0 0 0 2px rgba(73,124,255,.16),0 12px 24px rgba(31,54,97,.10)}
+    .mcard-now{background:linear-gradient(135deg,#2d5ed2,#214394);border-radius:6px}.mcard-name{color:#465773}.mcard-bal{color:#172846}.mcard.empty{background:rgba(255,255,255,.54)}
+    .detail-head .back,.loan-back{border-radius:11px;border-color:#dce5f2;background:rgba(255,255,255,.82);box-shadow:0 5px 12px rgba(31,54,97,.045)}.detail-head .back:hover,.loan-back:hover{border-color:#adc1ed;background:#fff;color:#214394}
+    .daystrip,.city-strip{padding-bottom:10px}.chip{border-radius:13px;border-color:#dfe7f3;background:#f8faff}.chip.has .cdot{background:var(--accent-2)}.chip.today:not(.sel){border-color:#86a4ee}.chip.today:not(.sel) .cn{color:var(--accent)}.chip.sel{background:linear-gradient(145deg,#2d5ed2,#214394);border-color:#214394;box-shadow:0 7px 15px rgba(35,74,156,.22)}
+    .field input,.field select,.cur-sel,.loan-select,.loan-numeric,.eligibility-input,.loan-search,.conv-amount{border-color:#dbe4f2;background:#f9fbff}.field input:focus,.field select:focus,.note textarea:focus,.loan-select:focus,.loan-numeric:focus,.eligibility-input:focus,.loan-search:focus,.conv-amount:focus{border-color:#7b9bf0;box-shadow:0 0 0 4px rgba(73,124,255,.13);background:#fff}
+    .amount-field input{border-color:#dbe4f2;background:#f9fbff}.amount-field input:focus{border-color:#7b9bf0;box-shadow:0 0 0 4px rgba(73,124,255,.13)}
+    .seg{background:#edf2fa;border-radius:13px}.seg.expense button.active{color:var(--expense);box-shadow:0 4px 9px rgba(31,54,97,.08)}.seg.income button.active{color:var(--income);box-shadow:0 4px 9px rgba(31,54,97,.08)}
+    .addbtn{border-radius:14px}.entry{padding:7px 5px;border-radius:10px}.entry:hover{background:#f6f9ff}.note textarea{border-color:#dbe4f2;background:#f9fbff}
+    .conv-card{box-shadow:0 15px 31px rgba(31,54,97,.08)}.conv-result{background:#edf3ff;border-color:#c8d8fb;color:#214394}.conv-swap button{color:#214394;border-color:#d5e1f5;background:#fff}.rate-sym{background:#edf3ff;color:#214394}.rate-row{border-color:#edf1f8}.rate-val{color:#1d3154}
+    .city-chip,.price-cat,.loan-filter{border-radius:11px;border-color:#dce5f2;background:rgba(255,255,255,.8);box-shadow:0 3px 8px rgba(31,54,97,.035)}.city-chip.sel,.price-cat.active,.loan-filter.active{background:linear-gradient(135deg,#2d5ed2,#214394);border-color:#214394;box-shadow:0 7px 15px rgba(35,74,156,.18)}
+    .wx-current{background:linear-gradient(150deg,#eff5ff,#faffff);border-color:#d8e6f9;box-shadow:0 15px 30px rgba(31,54,97,.08)}.wx-city{color:#385071}.wx-temp{color:#163d85}.fc-row{border-color:#edf1f8}
+    .price-icon{background:#eef3ff}.price-row{border-color:#edf1f8}.price-amount{color:#1b3155}.price-cats{padding-bottom:10px}
+
+    /* Loan directory: richer individual branding instead of a uniform green style. */
+    .loan-toolbar{gap:11px}.loan-search{height:48px;border-radius:15px;padding:0 15px;box-shadow:0 5px 14px rgba(31,54,97,.045)}
+    .loan-filter-row{padding-bottom:8px}.loan-filter{padding:8px 12px;font-size:11px;font-weight:780}.loan-provider-list{gap:12px}
+    .loan-provider{--provider:#2d5ed2;--provider-soft:#edf3ff;position:relative;overflow:hidden;border-radius:19px;padding:15px;border-color:#dce5f3;background:linear-gradient(135deg,rgba(255,255,255,.98),var(--provider-soft));box-shadow:0 9px 22px rgba(31,54,97,.065)}
+    .loan-provider:before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--provider),rgba(255,255,255,.15))}.loan-provider:hover{border-color:color-mix(in srgb,var(--provider) 48%,#cdd9ee);box-shadow:0 16px 30px rgba(31,54,97,.12);transform:translateY(-3px)}
+    .loan-provider[data-loan-provider="lend"]{--provider:#f48722;--provider-soft:#fff7ec}.loan-provider[data-loan-provider="moni"]{--provider:#de3b41;--provider-soft:#fff2f3}.loan-provider[data-loan-provider="pocket"]{--provider:#6a57dc;--provider-soft:#f5f2ff}.loan-provider[data-loan-provider="storepay"]{--provider:#f16552;--provider-soft:#fff3f0}.loan-provider[data-loan-provider="ard"]{--provider:#1b355b;--provider-soft:#eff4fb}.loan-provider[data-loan-provider="ikh"]{--provider:#2581c4;--provider-soft:#eef8ff}.loan-provider[data-loan-provider="payon"]{--provider:#1377d2;--provider-soft:#eff7ff}.loan-provider[data-loan-provider="simple"]{--provider:#089b78;--provider-soft:#edfbf7}.loan-provider[data-loan-provider="mbank"]{--provider:#2f6bd8;--provider-soft:#eef4ff}
+    .loan-provider-top{gap:12px}.loan-logo{width:50px;height:50px;border-radius:15px;border-color:rgba(218,228,243,.96);background:#fff;box-shadow:0 7px 14px rgba(31,54,97,.10)}.loan-logo-lg{width:58px;height:58px;border-radius:18px}.loan-logo img{padding:6px}.loan-provider-name{font-size:15px;color:#172b4c}.loan-provider-desc{font-size:11.5px;line-height:1.45;color:#6b7c96}.loan-provider-arrow{display:grid;place-items:center;min-width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.85);color:var(--provider);font-size:24px;line-height:1;box-shadow:0 4px 9px rgba(31,54,97,.07)}
+    .loan-provider-meta{margin-top:13px;gap:7px}.loan-pill{border-color:rgba(210,222,241,.92);background:rgba(255,255,255,.68);border-radius:8px;color:#53647f;padding:5px 8px}.loan-pill.rate{border-color:transparent;background:var(--provider);color:#fff}.loan-disclaimer{padding:4px 4px;color:#73829a}
+    .loan-source{color:#234a9c;background:#edf3ff;border-radius:9px;padding:7px 9px}.loan-source:hover{background:#e2ecff;text-decoration:none}
+    .loan-product{border-radius:18px;border-color:#dde6f4;padding:15px;background:rgba(255,255,255,.92);box-shadow:0 8px 19px rgba(31,54,97,.045)}.loan-product:hover{border-color:#bbcdf1;box-shadow:0 13px 26px rgba(31,54,97,.08)}
+    .loan-product-rate{color:#214394;background:#edf3ff;border-color:#cfddfb;border-radius:10px;padding:6px 8px}.loan-product-grid{gap:8px}.loan-stat{border-radius:11px;background:#f4f7fc;padding:9px}.loan-stat span{color:#7788a3}.loan-stat b{color:#31425f}.loan-calc-open{border-radius:12px;padding:11px 12px;margin-top:13px}
+    .loan-config-card{padding:18px}.loan-calc-title{font-size:15px;color:#182d52}.loan-range-row b{color:#234a9c}.loan-range{accent-color:#3f71ec}.loan-fixed-rate{border-color:#c9dafd;background:#edf3ff;border-radius:13px}.loan-fixed-rate span{color:#4b5e7d}.loan-fixed-rate b{color:#214394}.loan-fixed-rate-note{color:#7788a3}
+    .loan-result{position:relative;overflow:hidden;background:linear-gradient(145deg,#112a5f 0%,#1b438e 57%,#2e63ca 100%);border-radius:21px;padding:20px;box-shadow:0 17px 32px rgba(23,58,122,.25)}.loan-result:before{content:'';position:absolute;width:190px;height:190px;border-radius:50%;right:-78px;top:-92px;background:radial-gradient(circle,rgba(161,195,255,.45),transparent 70%)}.loan-result>*{position:relative;z-index:1}.loan-result-label{color:rgba(239,245,255,.72)}.loan-result-value{font-size:31px}.loan-pie{box-shadow:0 0 0 7px rgba(255,255,255,.06)}.loan-pie:after{background:#1b438e}.loan-result-total{border-color:rgba(255,255,255,.21)}
+    .eligibility{background:linear-gradient(145deg,rgba(255,255,255,.96),#f5f8ff)}.eligibility-status{border-radius:14px}.eligibility-status.good{border-color:#bde7d6;background:#ebfaf3}.eligibility-status.warn{border-color:#f1d99b;background:#fff9e9}.eligibility-status.bad{border-color:#ffd1cc;background:#fff3f1}.eligibility-ratio{color:#234a9c}.loan-schedule{padding:18px}.loan-schedule th{background:#f5f8fd}.loan-schedule td{border-color:#edf1f8}.loan-schedule tbody tr:nth-child(even){background:#fbfcff}.loan-warning{border-radius:14px;box-shadow:0 5px 14px rgba(141,100,8,.05)}
+
+    /* Five clear nav destinations on desktop and mobile. */
+    .tabbar{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;bottom:12px;padding:7px;border-radius:20px;border-color:rgba(214,225,242,.95);background:rgba(255,255,255,.84);box-shadow:0 16px 34px rgba(30,53,96,.16);backdrop-filter:blur(16px)}
+    .tabbar button{border-radius:14px;padding:8px 3px;color:#7787a0;font-size:10px;font-weight:770}.tabbar .tab-icon{font-size:18px}.tabbar button.active{background:linear-gradient(145deg,#2e61d4,#193a80);box-shadow:0 7px 16px rgba(35,74,156,.22)}.tabbar button:not(.active):hover{background:#eef3ff;color:#234a9c}
+    @media(max-width:430px){.app{padding:18px 13px 96px}.hero{padding:19px;border-radius:20px}.hero-value{font-size:35px}.card{border-radius:18px;padding:15px}.loan-provider{border-radius:17px;padding:14px}.loan-provider-desc{font-size:11px}.loan-pill{font-size:10px;padding:4px 7px}.loan-product-grid{grid-template-columns:1fr 1fr}.loan-stat:last-child{grid-column:1 / -1}.tabbar{bottom:8px;border-radius:17px;padding:5px}.tabbar button{font-size:9px;padding:8px 1px}.tabbar .tab-icon{font-size:17px}.price-hero{align-items:flex-start}.price-hero .hero-value{font-size:28px}}
+
+
+    /* Ambient financial background: keeps the page lively without competing with the content. */
+    body{position:relative;isolation:isolate;background:
+      radial-gradient(980px 620px at 12% -12%,rgba(91,139,255,.28),transparent 61%),
+      radial-gradient(740px 520px at 108% 12%,rgba(91,222,198,.18),transparent 59%),
+      radial-gradient(860px 540px at 50% 110%,rgba(183,204,255,.28),transparent 65%),
+      linear-gradient(180deg,#fbfdff 0%,#f3f7ff 44%,#edf3fb 100%);
+    }
+    .app{position:relative;z-index:2}
+    .ambient-bg{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+    .ambient-grid{position:absolute;inset:0;opacity:.42;background-image:
+      linear-gradient(rgba(58,102,183,.075) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(58,102,183,.075) 1px,transparent 1px);
+      background-size:54px 54px;
+      -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.88),transparent 31%,transparent 69%,rgba(0,0,0,.88));
+      mask-image:linear-gradient(90deg,rgba(0,0,0,.88),transparent 31%,transparent 69%,rgba(0,0,0,.88));
+    }
+    .ambient-glow{position:absolute;border-radius:50%;filter:blur(4px);opacity:.84}
+    .ambient-glow.one{width:420px;height:420px;left:-210px;top:13%;background:radial-gradient(circle,rgba(104,137,255,.22),rgba(104,137,255,0) 70%)}
+    .ambient-glow.two{width:470px;height:470px;right:-250px;top:30%;background:radial-gradient(circle,rgba(40,202,164,.18),rgba(40,202,164,0) 71%)}
+    .ambient-glow.three{width:500px;height:330px;left:34%;bottom:-240px;background:radial-gradient(ellipse,rgba(93,130,255,.16),rgba(93,130,255,0) 70%)}
+    .ambient-coin{position:absolute;width:148px;height:148px;border-radius:50%;display:grid;place-items:center;
+      border:1px solid rgba(125,157,219,.20);
+      background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.92),rgba(230,239,255,.66) 42%,rgba(188,207,247,.22) 72%,rgba(255,255,255,.04) 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -16px 30px rgba(77,117,195,.10),0 18px 44px rgba(42,72,135,.10);
+      color:rgba(35,76,161,.25);font:800 70px/1 var(--sans);letter-spacing:-.12em;transform:rotate(-12deg);
+    }
+    .ambient-coin:after{content:'';position:absolute;inset:12px;border-radius:50%;border:1px dashed rgba(71,111,193,.16)}
+    .ambient-coin.left{left:-74px;top:130px}.ambient-coin.right{right:-86px;bottom:106px;width:170px;height:170px;font-size:77px;transform:rotate(13deg)}
+    .ambient-card{position:absolute;width:240px;height:132px;border-radius:24px;
+      border:1px solid rgba(255,255,255,.58);
+      background:linear-gradient(145deg,rgba(255,255,255,.48),rgba(225,235,255,.18));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.66),0 20px 42px rgba(40,67,125,.08);
+      backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+      transform:rotate(10deg);
+    }
+    .ambient-card:before{content:'';position:absolute;left:22px;right:22px;top:28px;height:8px;border-radius:20px;background:linear-gradient(90deg,rgba(38,86,195,.13),rgba(38,86,195,.025))}
+    .ambient-card:after{content:'';position:absolute;left:22px;top:55px;width:82px;height:38px;border-radius:12px;border:1px solid rgba(54,96,183,.10);background:linear-gradient(135deg,rgba(255,255,255,.45),rgba(133,169,244,.12))}
+    .ambient-card.left{left:-118px;bottom:21%;transform:rotate(-13deg)}
+    .ambient-card.right{right:-134px;top:12%;transform:rotate(12deg)}
+    .ambient-spark{position:absolute;width:9px;height:9px;border-radius:50%;background:#6d96ff;box-shadow:0 0 0 7px rgba(109,150,255,.10),0 0 28px rgba(63,112,238,.34)}
+    .ambient-spark.one{left:18%;top:21%}.ambient-spark.two{right:18%;top:54%;width:7px;height:7px;background:#4ec9aa;box-shadow:0 0 0 7px rgba(78,201,170,.10),0 0 28px rgba(46,188,157,.28)}
+    .ambient-spark.three{left:13%;bottom:18%;width:6px;height:6px;background:#91aefa}
+    @media(max-width:920px){
+      .ambient-grid{opacity:.22;-webkit-mask-image:none;mask-image:none}
+      .ambient-coin.left{left:-104px;top:88px}.ambient-coin.right{right:-118px;bottom:78px}
+      .ambient-card{opacity:.55}.ambient-card.left{left:-160px}.ambient-card.right{right:-168px}
+      .ambient-spark{display:none}
+    }
+    @media(max-width:540px){
+      .ambient-grid{background-size:42px 42px;opacity:.16}
+      .ambient-glow.one{left:-290px;top:-80px}.ambient-glow.two{right:-330px;top:46%}.ambient-glow.three{left:-100px;bottom:-260px}
+      .ambient-coin{opacity:.24;transform:scale(.72) rotate(-12deg)}
+      .ambient-coin.left{left:-80px;top:80px}.ambient-coin.right{right:-90px;bottom:68px}
+      .ambient-card{display:none}
+    }
+
+  
+
+    /* Fuel station price board */
+    .fuel-hero{background:linear-gradient(145deg,#0c2e63 0%,#175194 56%,#2878be 100%)}
+    .fuel-hero:before{background:radial-gradient(circle,rgba(130,228,255,.34),rgba(130,228,255,0) 68%)}
+    .fuel-hero .hero-value{font-size:34px}.fuel-hero .hero-value .cur{font-size:14px;vertical-align:middle}
+    .fuel-live-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;font-size:11px;color:rgba(239,246,255,.82)}
+    .fuel-live-pill{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);padding:6px 9px;border-radius:999px;font-weight:760}
+    .fuel-live-pill i{width:6px;height:6px;border-radius:50%;background:#58e0ad;box-shadow:0 0 0 3px rgba(88,224,173,.12)}
+    .fuel-toolbar{display:flex;flex-direction:column;gap:10px}
+    .fuel-search{height:47px;width:100%;border:1px solid #dbe5f4;border-radius:14px;padding:0 14px;background:#f9fbff;color:#1c3153;outline:0;font-size:13px;box-shadow:0 4px 12px rgba(31,54,97,.04)}
+    .fuel-search:focus{border-color:#7b9bf0;box-shadow:0 0 0 4px rgba(73,124,255,.13);background:#fff}
+    .fuel-filter-row{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:thin}
+    .fuel-filter{flex:0 0 auto;border:1px solid #dce5f2;border-radius:10px;background:#fff;color:#50617b;padding:7px 10px;font-size:11px;font-weight:780}
+    .fuel-filter.active{border-color:#214394;background:linear-gradient(135deg,#2d5ed2,#214394);color:#fff;box-shadow:0 7px 15px rgba(35,74,156,.16)}
+    .fuel-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px;color:#6d7d96;font-size:11px}
+    .fuel-source-badge{display:inline-flex;align-items:center;gap:6px;color:#234a9c;font-weight:780;background:#edf3ff;border:1px solid #d8e5ff;padding:6px 9px;border-radius:9px;white-space:nowrap}
+    .fuel-source-badge:before{content:'⛽';font-size:13px}
+    .fuel-station-list{display:flex;flex-direction:column;margin-top:10px}
+    .fuel-station{padding:13px 0;border-top:1px solid #edf1f8;display:flex;flex-direction:column;gap:11px}
+    .fuel-station:first-child{border-top:0;padding-top:7px}
+    .fuel-station-top{display:flex;align-items:flex-start;gap:10px;min-width:0}
+    .fuel-brand-mark{width:34px;height:34px;flex:0 0 auto;border-radius:11px;background:linear-gradient(145deg,#f4a123,#e15e13);color:#fff;display:grid;place-items:center;font-weight:900;font-size:12px;box-shadow:0 5px 10px rgba(225,94,19,.20)}
+    .fuel-station-copy{min-width:0;flex:1}.fuel-station-name{font-size:13px;font-weight:800;color:#1a3158;line-height:1.25}.fuel-station-location{font-size:10.5px;color:#77869d;line-height:1.4;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .fuel-products{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .fuel-product{border:1px solid #e4ebf6;border-radius:11px;padding:8px 9px;background:linear-gradient(145deg,#fbfcff,#f4f8ff)}
+    .fuel-product small{display:block;color:#7888a2;font-size:9px;font-weight:760;letter-spacing:.025em;white-space:nowrap}.fuel-product b{display:block;color:#1d3f80;font:760 12px var(--mono);margin-top:3px;white-space:nowrap}
+    .fuel-product.muted b{color:#9aa6b8;font-family:var(--sans);font-size:11px}
+    .fuel-load-more{width:100%;border:1px dashed #aebfe2;background:#f7faff;color:#234a9c;border-radius:13px;padding:11px 12px;margin-top:13px;font-size:12px;font-weight:790}
+    .fuel-note{margin-top:12px;border-radius:12px;border:1px solid #e5ebf5;background:#f7f9fd;color:#677892;padding:10px 11px;font-size:10.5px;line-height:1.55}
+    .fuel-note b{color:#2c477b}.fuel-empty{padding:24px 10px;text-align:center;color:#74839a;font-size:13px;line-height:1.6}
+    .fuel-reference-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0 1px}
+    .fuel-reference{position:relative;overflow:hidden;border:1px solid #dce8ff;border-radius:14px;padding:12px 10px;background:linear-gradient(145deg,#f9fbff,#edf4ff);min-height:87px}
+    .fuel-reference:after{content:'';position:absolute;right:-15px;bottom:-18px;width:65px;height:65px;border-radius:50%;background:radial-gradient(circle,rgba(61,125,255,.22),transparent 68%)}
+    .fuel-reference small{position:relative;z-index:1;display:block;font-size:10px;font-weight:800;color:#667a99}.fuel-reference b{position:relative;z-index:1;display:block;margin-top:7px;color:#173d83;font:800 16px var(--mono);white-space:nowrap}.fuel-reference span{position:relative;z-index:1;display:block;margin-top:4px;color:#7485a0;font-size:9px;font-weight:650}
+    .fuel-reference.ai95{background:linear-gradient(145deg,#fff8f1,#fff1e5);border-color:#ffe1c5}.fuel-reference.ai95 b{color:#b65813}.fuel-reference.diesel{background:linear-gradient(145deg,#f5fbf8,#eaf6ef);border-color:#d5eadf}.fuel-reference.diesel b{color:#17734d}
+    .fuel-data-state{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:10.5px;color:#6f819d}.fuel-data-state i{width:6px;height:6px;border-radius:50%;background:#32b77a;box-shadow:0 0 0 3px rgba(50,183,122,.12)}.fuel-data-state.seed i{background:#f3a329;box-shadow:0 0 0 3px rgba(243,163,41,.12)}
+    .fuel-provider-pill{font-size:9px;border:1px solid #e5ecf7;color:#536986;background:#f9fbff;border-radius:999px;padding:3px 7px;font-weight:800;white-space:nowrap}
+    .fuel-station-top .fuel-provider-pill{margin-left:auto}
+    .fuel-empty.fuel-ready{border:1px dashed #b8c9e8;background:#f8fbff;border-radius:14px;margin-top:12px}
+    @media(max-width:430px){.fuel-products{gap:5px}.fuel-product{padding:7px}.fuel-product b{font-size:11px}.fuel-hero .hero-value{font-size:30px}.fuel-reference-grid{gap:6px}.fuel-reference{padding:10px 7px}.fuel-reference b{font-size:13px}}
+
+  
+    /* ===== Advanced food catalogue ===== */
+    .food-hero{position:relative;overflow:hidden;min-height:192px;padding:22px 22px 20px;border-radius:24px;border:0;background:linear-gradient(132deg,#14367c 0%,#2555bc 49%,#79a5ff 100%);color:#fff;box-shadow:0 18px 34px rgba(35,80,184,.22)}
+    .food-hero:before{content:"";position:absolute;width:240px;height:240px;right:-68px;top:-100px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.20),rgba(255,255,255,0) 67%)}
+    .food-hero:after{content:"";position:absolute;inset:auto -6% -38px 23%;height:116px;opacity:.32;background:linear-gradient(140deg,transparent 0 38%,rgba(255,255,255,.22) 39% 40%,transparent 41% 56%,rgba(255,255,255,.18) 57% 58%,transparent 59%);transform:skewX(-12deg)}
+    .food-hero-copy{position:relative;z-index:2;max-width:60%}.food-hero-eyebrow{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(235,243,255,.75)}
+    .food-hero-title{font-size:28px;line-height:1.06;letter-spacing:-.045em;font-weight:800;margin:8px 0 5px}.food-hero-sub{font-size:13px;line-height:1.35;color:rgba(240,246,255,.86);max-width:250px}
+    .food-hero-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:16px}.food-live-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid rgba(255,255,255,.17);border-radius:11px;background:rgba(255,255,255,.12);font-size:10.5px;font-weight:750;backdrop-filter:blur(8px)}.food-live-chip i{width:7px;height:7px;border-radius:50%;background:#70efb0;box-shadow:0 0 0 3px rgba(112,239,176,.13)}
+    .food-hero-visual{position:absolute;z-index:2;right:18px;bottom:-7px;width:42%;height:181px;display:flex;align-items:flex-end;justify-content:center}.food-hero-visual .milk-bottle{height:150px;width:74px}.food-hero-visual .milk-bottle:before{height:21px;top:-18px}.food-hero-visual .milk-bottle span{font-size:10px}.food-hero-glass{position:absolute;width:60px;height:86px;right:7px;bottom:15px;border:2px solid rgba(239,249,255,.76);border-radius:6px 6px 13px 13px;background:linear-gradient(to top,rgba(255,255,255,.86) 0 61%,rgba(255,255,255,.10) 61%);box-shadow:inset 0 0 15px rgba(255,255,255,.13),0 10px 15px rgba(10,29,77,.18)}
+    .food-splash{position:absolute;right:-2px;bottom:8px;width:86px;height:86px;border:11px solid rgba(255,255,255,.52);border-left-color:transparent;border-bottom-color:transparent;border-radius:53% 47% 62% 38%;transform:rotate(-24deg);filter:blur(.1px)}
+    .food-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid #dbe7ff;border-radius:18px;background:linear-gradient(135deg,#f8fbff,#edf4ff);overflow:hidden;box-shadow:0 8px 20px rgba(36,76,149,.07)}.food-insight{padding:13px 11px;min-width:0;display:flex;align-items:center;gap:8px;border-right:1px solid #dbe7ff}.food-insight:last-child{border-right:0}.food-insight-icon{width:29px;height:29px;border-radius:9px;background:#dfeaff;color:#2c62c9;display:grid;place-items:center;flex:0 0 auto;font-size:14px}.food-insight b{display:block;font-size:11px;color:#1c3767;line-height:1.2}.food-insight small{display:block;font-size:9.5px;color:#7387aa;line-height:1.25;margin-top:2px}
+    .food-gallery-wrap{position:relative}.food-gallery-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:3px 2px 2px}.food-gallery-head h3{margin:0;font-size:15px;line-height:1.2;letter-spacing:-.02em;color:#172b51}.food-gallery-head p{margin:3px 0 0;font-size:11px;color:#7890b8}.food-gallery-count{flex:0 0 auto;border-radius:999px;background:#eaf1ff;color:#2a5ebd;padding:5px 8px;font-size:10px;font-weight:800}
+    .food-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:12px}.food-card{overflow:hidden;border:1px solid #dce6f7;border-radius:18px;background:rgba(255,255,255,.94);box-shadow:0 8px 18px rgba(35,74,143,.08);transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease}.food-card:hover{transform:translateY(-2px);box-shadow:0 13px 24px rgba(35,74,143,.13);border-color:#b9cdf2}.food-card-visual{position:relative;height:126px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(145deg,#dcecff,#f5f8ff)}.food-card-visual.tone-sky{background:linear-gradient(145deg,#d7edff,#f8fbff)}.food-card-visual.tone-rose{background:linear-gradient(145deg,#ffdbe6,#fff9fb)}.food-card-visual.tone-sand{background:linear-gradient(145deg,#f7ead8,#fffaf4)}.food-card-visual.tone-mint{background:linear-gradient(145deg,#d9f5e8,#fbfffd)}.food-card-visual.tone-cola{background:linear-gradient(145deg,#f1dcdd,#fff8f8)}.food-card-visual.tone-orange{background:linear-gradient(145deg,#ffe2ba,#fff9ed)}.food-card-visual.tone-lime{background:linear-gradient(145deg,#edf5ad,#fffff4)}.food-card-visual.tone-ice{background:linear-gradient(145deg,#d5ecff,#f8fcff)}.food-card-visual:before{content:"";position:absolute;width:110px;height:50px;border-radius:50%;background:rgba(24,69,144,.12);bottom:-20px;filter:blur(12px)}.food-card-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.36),transparent 36%);pointer-events:none}
+    .food-card-badge{position:absolute;z-index:2;left:8px;top:8px;border:1px solid rgba(255,255,255,.68);border-radius:999px;background:rgba(34,91,198,.9);box-shadow:0 4px 10px rgba(22,69,160,.16);padding:4px 6px;color:#fff;font-size:8.5px;font-weight:800}.food-card-body{padding:10px 10px 9px}.food-card-name{min-height:31px;font-size:11.5px;line-height:1.28;font-weight:760;color:#1a335e;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.food-card-unit{margin-top:2px;font-size:9.5px;color:#7a8ead}.food-card-price{margin-top:7px;font:800 16px var(--mono);letter-spacing:-.045em;color:#153a82}.food-card-foot{display:flex;align-items:center;justify-content:space-between;gap:3px;margin-top:7px;font-size:9px;color:#6b80a2}.food-card-foot span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.food-card-foot strong{color:#2c67d0;font-size:12px}
+    .product-pack{position:relative;z-index:1;filter:drop-shadow(0 12px 8px rgba(17,48,104,.18))}.milk-carton{width:59px;height:88px;border-radius:5px 6px 8px 8px;border:1px solid rgba(28,83,184,.22);background:linear-gradient(90deg,#f8fbff 0 17%,#fff 18% 73%,#dceaff 74%);display:flex;align-items:center;justify-content:center;color:#1955b8;text-align:center;line-height:1.03;box-shadow:inset 5px 0 0 rgba(99,155,255,.2);transform:perspective(190px) rotateY(-8deg)}.milk-carton:before{content:"";position:absolute;left:0;top:-18px;width:59px;height:23px;border-radius:5px 5px 0 0;background:linear-gradient(115deg,#dcecff 0 48%,#f7fbff 49%);clip-path:polygon(0 100%,16% 0,75% 0,100% 100%);border:1px solid rgba(28,83,184,.16);border-bottom:0}.milk-carton:after{content:"";position:absolute;right:7px;top:-11px;width:13px;height:6px;border-radius:50%;background:#2b67ce}.milk-carton b{font-size:10px;letter-spacing:-.035em}.milk-carton i{position:absolute;left:7px;right:7px;bottom:9px;height:14px;border-radius:50% 50% 0 0;background:linear-gradient(#79c785,#3d9c5a);opacity:.9}
+    .milk-bottle{position:relative;width:58px;height:107px;border-radius:18px 18px 16px 16px;background:linear-gradient(100deg,#e9f4ff 0 18%,#fff 20% 75%,#d7e7fb 100%);border:1px solid rgba(41,84,155,.2);box-shadow:inset 6px 0 0 rgba(117,174,255,.18);display:flex;align-items:center;justify-content:center;text-align:center;color:#1b58a9}.milk-bottle:before{content:"";position:absolute;top:-14px;width:30px;height:17px;border-radius:7px 7px 3px 3px;background:#2e6bcf;border:2px solid #88adf1}.milk-bottle:after{content:"";position:absolute;left:8px;right:8px;bottom:15px;height:25px;border-radius:5px;background:linear-gradient(#f8ffff,#dceaff);border:1px solid rgba(38,87,169,.18)}.milk-bottle span{position:relative;z-index:1;font-weight:850;font-size:9px;line-height:1.05}.milk-bottle em{position:absolute;z-index:1;bottom:19px;font-style:normal;font-size:7px;font-weight:760;color:#58aa6c}
+    .yogurt-cup{position:relative;width:89px;height:55px;border-radius:8px 8px 23px 23px;background:linear-gradient(#f9ffff,#dcecff);border:1px solid rgba(38,93,180,.22);display:flex;align-items:center;justify-content:center;text-align:center;color:#1c59b4;font-size:10px;font-weight:850}.yogurt-cup:before{content:"";position:absolute;left:-5px;right:-5px;top:-11px;height:16px;border-radius:50%;background:radial-gradient(ellipse at center,#fff 0 40%,#a2d7ff 41% 43%,#edf7ff 44%);border:1px solid rgba(38,93,180,.2)}.yogurt-cup:after{content:"";position:absolute;bottom:8px;width:30px;height:9px;border-radius:50% 50% 0 0;background:#6fb56f;opacity:.85}
+    .soda-bottle{position:relative;width:42px;height:99px;border-radius:13px 13px 14px 14px;background:linear-gradient(90deg,rgba(255,255,255,.29),transparent 27%,rgba(0,0,0,.18) 100%),var(--drink,#c62e32);border:1px solid rgba(50,44,68,.22);display:flex;align-items:center;justify-content:center;box-shadow:inset 5px 0 0 rgba(255,255,255,.13)}.soda-bottle:before{content:"";position:absolute;top:-13px;width:18px;height:16px;border-radius:5px 5px 2px 2px;background:var(--cap,#d52a2d);border:1px solid rgba(255,255,255,.45)}.soda-bottle:after{content:"";position:absolute;left:5px;right:5px;top:39px;height:30px;border-radius:4px;background:rgba(255,255,255,.92);box-shadow:0 0 0 1px rgba(30,49,91,.14)}.soda-bottle span{position:relative;z-index:1;color:#d02630;font-size:8px;font-weight:900;letter-spacing:-.05em}.soda-bottle.tone-orange{--drink:#ff9a16;--cap:#f37c0b}.soda-bottle.tone-lime{--drink:#dbd74d;--cap:#edc523}.soda-bottle.tone-ice{--drink:#80c8ed;--cap:#2392d2}.soda-bottle.tone-cola{--drink:#75252a;--cap:#e43638}.soda-can{position:relative;width:57px;height:92px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.28),transparent 28%,rgba(0,0,0,.12)),var(--drink,#d42c31);border:1px solid rgba(54,47,78,.2);display:flex;align-items:center;justify-content:center;box-shadow:inset 6px 0 0 rgba(255,255,255,.13)}.soda-can.tone-ice{--drink:#52aee1}.soda-can.tone-cola{--drink:#d12f38}.soda-can.tone-orange{--drink:#ff9a16}.soda-can.tone-lime{--drink:#d2ca44}.soda-can:before{content:"";position:absolute;top:2px;left:4px;right:4px;height:8px;border-radius:50%;background:#eff3f6;border:1px solid rgba(0,0,0,.15)}.soda-can:after{content:"";position:absolute;bottom:2px;left:4px;right:4px;height:7px;border-radius:50%;background:#d3d9dc;border:1px solid rgba(0,0,0,.13)}.soda-can span{position:relative;z-index:1;color:#fff;font-size:9px;font-weight:900;letter-spacing:-.05em;text-shadow:0 1px 0 rgba(0,0,0,.18)}
+    .food-regular-card{border-color:#dce6f7;background:linear-gradient(180deg,rgba(255,255,255,.95),#f7faff)}.food-regular-card .price-list{margin-top:10px}.food-regular-card .price-row{padding:10px 0}.food-note{margin-top:10px;padding:10px 12px;border:1px dashed #c9dbfa;border-radius:12px;background:#f6f9ff;color:#607ba8;font-size:10.5px;line-height:1.45}.food-note b{color:#2f5eb3}
+    @media(max-width:500px){.food-hero{min-height:178px;padding:19px 17px}.food-hero-title{font-size:24px}.food-hero-copy{max-width:59%}.food-hero-visual{right:6px;width:43%;height:166px}.food-hero-visual .milk-bottle{height:132px;transform:scale(.91);transform-origin:bottom}.food-hero-glass{transform:scale(.8);transform-origin:bottom right}.food-insights{grid-template-columns:1fr}.food-insight{border-right:0;border-bottom:1px solid #dbe7ff;padding:10px 12px}.food-insight:last-child{border-bottom:0}.food-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.food-card-visual{height:142px}.food-card-name{font-size:12px}.food-card-price{font-size:17px}}
+
+
+    /* Жинхэнэ бүтээгдэхүүний зурагтай каталог */
+    .food-card-visual{isolation:isolate}
+    .food-card-photo-wrap{position:relative;z-index:1;width:100%;height:100%;display:grid;place-items:center;padding:8px}
+    .food-card-photo{display:block;width:100%;height:100%;max-width:94px;max-height:118px;object-fit:contain;filter:drop-shadow(0 12px 9px rgba(13,42,95,.18));transform:translateZ(0);mix-blend-mode:multiply}
+    .food-card-photo[src*="suu.mn"]{max-width:90px;max-height:121px;mix-blend-mode:normal}
+    .food-photo-fallback[hidden]{display:none!important}
+    .food-photo-fallback{width:100%;height:100%;display:grid;place-items:center}
+    .food-card-source{display:inline-flex;align-items:center;gap:3px;margin-top:7px;text-decoration:none;color:#5176bb;font-size:9px;font-weight:800;white-space:nowrap}
+    .food-card-source:hover{color:#164baf;text-decoration:underline}
+    .food-card-source:after{content:'↗';font-size:10px}
+    .food-hero-real-pack{position:absolute;z-index:3;right:16px;bottom:-7px;width:118px;height:168px;object-fit:contain;filter:drop-shadow(0 16px 13px rgba(8,31,83,.30));mix-blend-mode:screen}
+    .food-hero-real-pack.is-failed{display:none}
+    @media(max-width:430px){.food-card-photo{max-width:82px;max-height:111px}.food-hero-real-pack{right:9px;width:105px;height:157px}}
+
+  
+
+    /* ==================== Миний зээл / төлөлтийн бүртгэл ==================== */
+    .tabbar{grid-template-columns:repeat(6,1fr)}
+    .tabbar button{min-width:0;padding:8px 2px;font-size:10px}
+    .tabbar .tab-icon{font-size:17px}
+    .debt-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#112f64 0%,#1e5aa9 56%,#6d93ea 100%);color:#fff;border:0;box-shadow:0 13px 31px rgba(25,69,144,.24)}
+    .debt-hero:before{content:'';position:absolute;width:180px;height:180px;border:1px solid rgba(255,255,255,.14);border-radius:50%;right:-55px;top:-85px;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 56px rgba(255,255,255,.025)}
+    .debt-hero>*{position:relative;z-index:1}.debt-hero .hero-label{color:rgba(255,255,255,.72)}.debt-hero .hero-value{color:#fff}.debt-hero .hero-value .cur{color:rgba(255,255,255,.75)}
+    .debt-hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.debt-hero-chip{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.11);border-radius:9px;padding:7px 9px;font-size:11px;color:rgba(255,255,255,.87)}.debt-hero-chip b{font-family:var(--mono);font-size:11px;color:#fff}
+    .debt-primary{border:0;border-radius:12px;padding:12px 14px;background:linear-gradient(135deg,#1e57a4,#153b78);box-shadow:0 7px 16px rgba(23,73,155,.22);color:#fff;font-weight:800;font-size:13px}.debt-primary:hover{filter:brightness(1.07)}
+    .debt-add-card{border:1px solid #c9d9fa;background:linear-gradient(180deg,#f7faff,#fff);box-shadow:0 7px 20px rgba(50,92,170,.08)}
+    .debt-add-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.debt-add-heading h3{margin:0;font-size:14px}.debt-close{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:5px 8px;font-weight:750;font-size:12px}.debt-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.debt-form-grid .full{grid-column:1/-1}.debt-form-grid input{width:100%;height:42px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:0 10px;color:var(--ink);outline:0}.debt-form-grid input:focus{border-color:#2c68c3;box-shadow:0 0 0 3px rgba(44,104,195,.1)}.debt-form-tip{font-size:10.5px;line-height:1.45;color:var(--muted);margin:10px 0 12px}
+    .debt-empty{padding:34px 18px;text-align:center;border:1px dashed #cbd7ef;background:linear-gradient(180deg,#fafcff,#fff);border-radius:17px;color:var(--muted)}.debt-empty .debt-empty-icon{width:52px;height:52px;border-radius:16px;background:#eaf1ff;color:#2961ba;display:grid;place-items:center;margin:0 auto 11px;font-size:24px}.debt-empty b{display:block;color:var(--ink2);font-size:14px;margin-bottom:4px}.debt-empty p{margin:0;font-size:12px;line-height:1.55}
+    .debt-list{display:flex;flex-direction:column;gap:12px}.debt-card{border:1px solid #dbe3ef;background:#fff;border-radius:17px;overflow:hidden;box-shadow:0 4px 15px rgba(25,48,88,.06)}.debt-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 15px 12px}.debt-title-row{display:flex;align-items:center;gap:9px;min-width:0}.debt-avatar{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#dde9ff,#b8cef7);color:#234d99;display:grid;place-items:center;font-size:18px;font-weight:850;flex:0 0 auto}.debt-title-copy{min-width:0}.debt-name{font-size:14px;font-weight:830;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.debt-lender{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.debt-delete{border:0;background:transparent;color:#b9c2d0;font-size:19px;padding:2px 4px;border-radius:8px;line-height:1}.debt-delete:hover{background:#fff0ef;color:var(--expense)}
+    .debt-card-numbers{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 15px 12px}.debt-number{border:1px solid #edf0f5;border-radius:11px;background:#fafcff;padding:9px 10px}.debt-number span{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:760}.debt-number b{display:block;margin-top:3px;font:780 14px var(--mono);color:#223a68}.debt-number b.small{font-size:13px}.debt-progress-wrap{padding:0 15px 14px}.debt-progress-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--muted);margin-bottom:6px}.debt-progress-row b{font:780 11px var(--mono);color:#2b579c}.debt-progress{height:8px;background:#eaf0fa;border-radius:99px;overflow:hidden}.debt-progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#2c66c6,#6f9eff);transition:width .25s ease}
+    .debt-next{border-top:1px solid #eef1f6;background:linear-gradient(180deg,#fff,#fbfcff);padding:12px 15px}.debt-next-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.debt-next-head span{font-size:11px;color:var(--muted);font-weight:700}.debt-next-head b{font:800 13px var(--mono);color:#193f81}.debt-pay-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e6edf8;border-radius:12px;background:#fff;padding:10px 11px}.debt-pay-row.done{background:#f1faf5;border-color:#cde9d8}.debt-pay-label{min-width:0}.debt-pay-month{font-size:12px;font-weight:790;color:var(--ink2)}.debt-pay-sub{font-size:10.5px;color:var(--muted);margin-top:2px}.debt-status{flex:0 0 auto;border:0;border-radius:9px;padding:7px 9px;font-size:11px;font-weight:820}.debt-status.pay{background:#1f5eaf;color:#fff}.debt-status.pay:hover{filter:brightness(1.08)}.debt-status.wait{background:#f0f2f6;color:#8a94a4}.debt-status.done{background:#dff4e8;color:#15764f}.debt-status.undo{background:#fff1ed;color:#c5543f;border:1px solid #f3d2c9}
+    .debt-schedule{border-top:1px solid #eef1f6}.debt-schedule summary{cursor:pointer;list-style:none;padding:11px 15px;color:#315da7;font-size:11.5px;font-weight:770;display:flex;justify-content:space-between;align-items:center}.debt-schedule summary::-webkit-details-marker{display:none}.debt-schedule summary:after{content:'⌄';font-size:16px;color:#7291c5}.debt-schedule[open] summary:after{transform:rotate(180deg)}.debt-schedule-list{padding:0 15px 14px;display:flex;flex-direction:column;gap:7px}.debt-schedule-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;border:1px solid #edf0f5;border-radius:10px;padding:8px 9px;background:#fcfdff}.debt-schedule-row.next{border-color:#bcd1f5;background:#f6f9ff}.debt-schedule-row.paid{border-color:#cce8d8;background:#f4fbf7}.debt-schedule-date{font-size:11.5px;font-weight:750;color:var(--ink2)}.debt-schedule-amount{font:720 11px var(--mono);color:#35558e}.debt-schedule-state{font-size:10px;font-weight:770;color:var(--muted);text-align:right}.debt-schedule-row.paid .debt-schedule-state{color:#178257}.debt-schedule-row.next .debt-schedule-state{color:#1f5eaf}
+    .debt-note{font-size:10.5px;color:var(--muted);line-height:1.5;margin:2px 3px 0}.debt-note b{color:var(--ink2)}
+    @media(max-width:430px){.tabbar{gap:2px;padding:5px}.tabbar button{font-size:9px;padding:8px 1px}.tabbar .tab-icon{font-size:16px}.debt-card-top{padding:13px 12px 10px}.debt-card-numbers,.debt-progress-wrap,.debt-next{padding-left:12px;padding-right:12px}.debt-form-grid{gap:8px}.debt-number b{font-size:12px}.debt-schedule-list{padding-left:12px;padding-right:12px}}
+
+  
+
+    /* ==================== Advanced debt calendar & bank account view ==================== */
+    .debt-calendar{padding:0;overflow:hidden;border:1px solid #d8e4f7;background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(248,251,255,.98));box-shadow:0 12px 28px rgba(31,73,148,.10)}
+    .debt-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 15px 12px;border-bottom:1px solid #e9eff8;background:linear-gradient(135deg,#f7faff,#eef5ff)}
+    .debt-calendar-eyebrow{display:block;font-size:9.5px;font-weight:850;letter-spacing:.09em;color:#5e7aa9}.debt-calendar-title{margin:3px 0 0;font-size:18px;line-height:1.08;letter-spacing:-.03em;color:#163969}
+    .debt-year-tools{display:flex;align-items:center;gap:6px}.debt-year-button{width:31px;height:31px;border:1px solid #d5e1f5;background:#fff;color:#28569f;border-radius:10px;font-size:18px;font-weight:850;display:grid;place-items:center}.debt-year-button:hover{background:#edf4ff;border-color:#aabfe6}.debt-current-button{border:1px solid #c9d9f3;border-radius:10px;background:#fff;color:#2d5ba5;padding:8px 9px;font-size:10.5px;font-weight:820;white-space:nowrap}.debt-current-button:hover{background:#edf4ff}
+    .debt-month-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px}.debt-month-tab{position:relative;min-height:86px;text-align:left;border:1px solid #e4ebf6;border-radius:13px;background:#fff;padding:10px 9px;overflow:hidden;transition:.16s ease;color:#213b66}.debt-month-tab:hover{transform:translateY(-1px);border-color:#b9cdef;box-shadow:0 7px 14px rgba(35,76,151,.09)}.debt-month-tab.active{border-color:#2d67c7;background:linear-gradient(145deg,#285fb8,#173d7d);box-shadow:0 9px 18px rgba(29,79,166,.20);color:#fff}.debt-month-tab.current:after{content:'';position:absolute;top:9px;right:9px;width:6px;height:6px;border-radius:50%;background:#2f78dc;box-shadow:0 0 0 3px rgba(47,120,220,.13)}.debt-month-tab.active.current:after{background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.16)}.debt-month-tab small{display:block;font-size:10px;font-weight:820;color:#6a80a4}.debt-month-tab.active small{color:rgba(255,255,255,.75)}.debt-month-tab b{display:block;margin-top:7px;font:800 12px var(--mono);letter-spacing:-.04em;color:#21497f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.debt-month-tab.active b{color:#fff}.debt-month-tab span{display:block;margin-top:5px;font-size:9.5px;font-weight:730;color:#8293ad;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.debt-month-tab.active span{color:rgba(255,255,255,.72)}.debt-month-tab.done:not(.active){background:linear-gradient(145deg,#f4fcf7,#fff);border-color:#cde8d8}.debt-month-tab.done:not(.active) span{color:#22845d}
+    .debt-month-summary{position:relative;overflow:hidden;border:1px solid #cbdcf9;background:linear-gradient(135deg,#edf4ff,#ffffff 68%);border-radius:18px;padding:15px;box-shadow:0 8px 22px rgba(40,86,169,.09)}.debt-month-summary:after{content:'✓';position:absolute;right:-10px;top:-27px;width:94px;height:94px;border:1px solid rgba(49,103,198,.15);border-radius:50%;display:grid;place-items:center;font-size:34px;font-weight:850;color:rgba(48,101,194,.12)}.debt-month-summary>*{position:relative;z-index:1}.debt-month-summary-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.debt-month-summary-label{font-size:10px;font-weight:850;letter-spacing:.07em;color:#5474a9}.debt-month-summary-title{margin-top:4px;font-size:17px;font-weight:850;letter-spacing:-.03em;color:#173d76}.debt-month-summary-count{border:1px solid #cfdef5;border-radius:10px;background:#fff;padding:7px 8px;color:#3767ae;font-size:10px;font-weight:820;white-space:nowrap}.debt-month-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.debt-month-stat{border:1px solid rgba(205,220,243,.88);border-radius:12px;background:rgba(255,255,255,.76);padding:10px}.debt-month-stat span{display:block;color:#7084a5;font-size:9px;font-weight:790;letter-spacing:.04em;text-transform:uppercase}.debt-month-stat b{display:block;margin-top:4px;color:#1a4585;font:830 15px var(--mono);letter-spacing:-.04em}.debt-month-stat.paid b{color:#18815a}
+    .debt-bank-account{display:flex;flex-wrap:wrap;gap:6px;padding:0 15px 12px}.debt-bank-chip,.debt-account-chip{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 8px;font-size:10.5px;font-weight:760;line-height:1.15}.debt-bank-chip{border:1px solid #d5e2f6;background:#f4f8ff;color:#2c5b9d}.debt-account-chip{border:1px solid #e4e9f2;background:#fbfcfe;color:#687790}.debt-account-no{margin:0 15px 12px;padding:8px 9px;border-left:3px solid #75a2ed;background:#f8fbff;color:#60718e;font:720 10.5px var(--mono);border-radius:0 9px 9px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.debt-account-no b{color:#244a84}
+    .debt-selected-payment{border-top:1px solid #edf1f7;background:linear-gradient(180deg,#fff,#f9fbff);padding:12px 15px}.debt-selected-payment-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}.debt-selected-payment-head span{font-size:10.5px;font-weight:790;color:#6f809d}.debt-selected-payment-head b{font:820 13px var(--mono);color:#1d477f}.debt-payment-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #bbd0f4;border-radius:13px;background:linear-gradient(135deg,#f1f6ff,#fff);padding:11px 12px;text-align:left;color:#244f92;transition:.16s ease}.debt-payment-toggle:hover{transform:translateY(-1px);border-color:#7fa9e7;box-shadow:0 6px 13px rgba(36,79,146,.10)}.debt-payment-toggle .left{min-width:0}.debt-payment-toggle .left b{display:block;font-size:12px;color:#1e467e}.debt-payment-toggle .left span{display:block;margin-top:2px;font-size:10px;color:#7183a2}.debt-payment-toggle .right{flex:0 0 auto;border-radius:9px;background:#1f5eaf;color:#fff;padding:7px 9px;font-size:10px;font-weight:830;white-space:nowrap}.debt-payment-toggle.paid{border-color:#bfe3d0;background:linear-gradient(135deg,#effaf4,#fff);color:#177351}.debt-payment-toggle.paid .left b{color:#176e4f}.debt-payment-toggle.paid .right{background:#dff3e8;color:#15754f}.debt-payment-not-due{border:1px dashed #d8e0ec;border-radius:12px;background:#fbfcfe;padding:11px 12px;color:#7b8aa2;font-size:11px;line-height:1.45}.debt-payment-not-due b{color:#5c6d89}
+    .debt-schedule-row{width:100%;border:1px solid #edf0f5;background:#fcfdff;cursor:pointer;font:inherit;text-align:left}.debt-schedule-row:hover{border-color:#b9cdec;background:#f6f9ff}.debt-schedule-row.selected{border-color:#2f68c4;background:#edf4ff}.debt-schedule-row.selected .debt-schedule-state{color:#2359aa}.debt-schedule-row.paid.selected{border-color:#47a779;background:#eefaf4}
+    .debt-calendar-help{padding:0 15px 14px;color:#74849d;font-size:10.5px;line-height:1.45}.debt-calendar-help b{color:#315ea3}
+    @media(max-width:430px){.debt-calendar-head{padding:14px 12px 11px}.debt-month-grid{gap:7px;padding:10px}.debt-month-tab{min-height:80px;padding:9px 8px}.debt-month-tab b{font-size:11px}.debt-month-tab span{font-size:9px}.debt-month-summary{padding:13px}.debt-bank-account{padding-left:12px;padding-right:12px}.debt-account-no{margin-left:12px;margin-right:12px}.debt-selected-payment{padding-left:12px;padding-right:12px}}
+
+  </style>
+</head>
+<body>
+  <div class="ambient-bg" aria-hidden="true">
+    <div class="ambient-grid"></div>
+    <div class="ambient-glow one"></div><div class="ambient-glow two"></div><div class="ambient-glow three"></div>
+    <div class="ambient-card left"></div><div class="ambient-card right"></div>
+    <div class="ambient-coin left">₮</div><div class="ambient-coin right">₮</div>
+    <div class="ambient-spark one"></div><div class="ambient-spark two"></div><div class="ambient-spark three"></div>
+  </div>
+  <main class="app">
+    <header class="brand" id="appHeader">
+      <div class="brand-left"><span class="brand-mark" id="brandIcon">▣</span><span class="brand-name" id="brandTitle">Гэрийн данс</span></div>
+      <div class="header-actions" id="headerActions"></div>
+    </header>
+
+    <section class="tab active" id="tab-dans"></section>
+    <section class="tab" id="tab-hansh"></section>
+    <section class="tab" id="tab-weather"></section>
+    <section class="tab" id="tab-price"></section>
+    <section class="tab" id="tab-loan"></section>
+    <section class="tab" id="tab-debts"></section>
+
+    <nav class="tabbar" aria-label="Үндсэн цэс">
+      <button class="active" data-tab="dans" aria-label="Данс"><span class="tab-icon">▣</span><span>Данс</span></button>
+      <button data-tab="hansh" aria-label="Валютын ханш"><span class="tab-icon">⇄</span><span>Ханш</span></button>
+      <button data-tab="weather" aria-label="Цаг агаар"><span class="tab-icon">☁</span><span>Цаг агаар</span></button>
+      <button data-tab="price" aria-label="Шатахууны үнэ"><span class="tab-icon">⛽</span><span>Шатахуун</span></button>
+      <button data-tab="loan" aria-label="Зээл"><span class="tab-icon">₮</span><span>Зээл</span></button>
+      <button data-tab="debts" aria-label="Миний зээл"><span class="tab-icon">✓</span><span>Төлөлт</span></button>
+    </nav>
+  </main>
+
+  <script>
+  (() => {
+    'use strict';
+
+    /* ==================== Тохиргоо ==================== */
+    const CONFIG = {
+      WEATHER_REFRESH_MS: 15 * 60 * 1000,  // 15 минут
+      RATES_REFRESH_MS: 60 * 60 * 1000,    // 1 цаг
+      PRICE_REFRESH_MS: 24 * 60 * 60 * 1000, // өдөр бүр
+      FUEL_REFRESH_MS: 60 * 60 * 1000, // ШТС-ийн жагсаалтыг цаг тутам шалгана
+      WEATHER_API: 'https://api.open-meteo.com/v1/forecast',
+      RATES_API: 'https://open.er-api.com/v6/latest/USD',
+      // ҮСХ / 1212.mn: Улаанбаатарын гол нэрийн барааны долоо хоногийн дундаж үнэ
+      PRICE_META_API: 'https://data.1212.mn/api/v1/mn/NSO/NSO__Economy%2C%20environment__Consumer%20Price%20Index/DT_NSO_0600_001V4.px',
+      // Албан ёсоор ШТС тус бүрийн үнэ нийтэлдэг эх сурвалж.
+      FUEL_STATION_SOURCE: 'https://www.shunkhlai.mn/prices'
+    };
+    const CATS = {
+      expense:['Хоол','Тээвэр','Орон сууц','Гэр ахуй','Холбоо/Интернэт','Эрүүл мэнд','Хувцас','Зугаа цэнгэл','Боловсрол','Бусад'],
+      income:['Цалин','Нэмэлт ажил','Бэлэг','Буцаан олголт','Бусад']
+    };
+    const CURRENCIES = [
+      {code:'MNT',name:'Монгол төгрөг',symbol:'₮'}, {code:'USD',name:'Америк доллар',symbol:'$'},
+      {code:'EUR',name:'Евро',symbol:'€'}, {code:'CNY',name:'Хятад юань',symbol:'¥'},
+      {code:'RUB',name:'Орос рубль',symbol:'₽'}, {code:'KRW',name:'Солонгос вон',symbol:'₩'},
+      {code:'JPY',name:'Япон иен',symbol:'¥'}, {code:'GBP',name:'Английн фунт',symbol:'£'}
+    ];
+    const RATE_CODES=['USD','EUR','CNY','RUB','KRW','JPY','GBP'];
+    const CITIES=[
+      {name:'Улаанбаатар',lat:47.92,lon:106.92}, {name:'Дархан',lat:49.49,lon:105.92},
+      {name:'Эрдэнэт',lat:49.03,lon:104.08}, {name:'Мөрөн',lat:49.63,lon:100.16},
+      {name:'Ховд',lat:48.01,lon:91.64}, {name:'Өлгий',lat:48.97,lon:89.96},
+      {name:'Баянхонгор',lat:46.19,lon:100.72}, {name:'Чойбалсан',lat:48.07,lon:114.50},
+      {name:'Сайншанд',lat:44.89,lon:110.14}
+    ];
+    // Шунхлайн албан үнийн хүснэгтээс авсан суурь үнэ. Live хүснэгт татагдах хүртэл
+    // хоосон самбар гаргахгүйн тулд ашиглана. Live шинэчлэлт амжилттай бол энэ жагсаалт солигдоно.
+    const FUEL_REFERENCE = {
+      ai92:{label:'АИ-92',price:2590,range:'2,590–3,250₮'},
+      ai95:{label:'АИ-95',price:4010,range:'3,660–4,300₮'},
+      diesel:{label:'ДТ / Евро-ДТ',price:4320,range:'4,320–5,150₮'}
+    };
+    const FALLBACK_FUEL_STATIONS = [
+      {name:'ШТС-1',location:'Улаанбаатар, СБД, Энхтайвны гүүр',ai92:2590,ai95:4010,diesel:4920,dieselLabel:'Евро-ДТ'},
+      {name:'ШТС-2',location:'Улаанбаатар, БЗД, Нарантуулын зүүн тал',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-3',location:'Улаанбаатар, БЗД, КТМС-ийн урд',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-4',location:'Улаанбаатар, СХД, 22-ын товчоо',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-5',location:'Улаанбаатар, БЗД, ЗЦГ-ын урд',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-6',location:'Улаанбаатар, Эмээлт төв',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-7',location:'Улаанбаатар, БЗД, Эрэл сургуулийн дэргэд',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-9',location:'Улаанбаатар, ЧД, Салхит',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-10',location:'Улаанбаатар, СХД, Баянхошуу',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-11',location:'Улаанбаатар, СХД, Сутайн буян зах',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-12',location:'Улаанбаатар, БГД, Мах комбинат',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-13',location:'Улаанбаатар, БЗД, Баянзүрх товчоо',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-14',location:'Улаанбаатар, БЗД, Ботаникийн эцэс',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-15',location:'Улаанбаатар, ХУД, Яармаг',ai92:2590,ai95:4010,diesel:4920,dieselLabel:'Евро-ДТ'},
+      {name:'ШТС-17',location:'Улаанбаатар, ХУД, Гурвалжингийн гүүр',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-18',location:'Улаанбаатар, ЧД, 32-ын тойрог',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-19',location:'Улаанбаатар, БЗД, Цайз зах',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-20',location:'Улаанбаатар, БЗД, Дарь-Эх',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-21',location:'Улаанбаатар, БЗД, Офицеруудын ордон',ai92:2590,ai95:4010,diesel:4920,dieselLabel:'Евро-ДТ'},
+      {name:'ШТС-23',location:'Улаанбаатар, СБД, Дамбадаржаа',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-24',location:'Улаанбаатар, БГД, ТЭЦ-4-ийн зүүн тал',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-25',location:'Улаанбаатар, СХД, Сонсголон',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-26',location:'Улаанбаатар, ХУД, Нүхтийн уулзвар',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-28',location:'Улаанбаатар, СХД, Найрамдлын зам',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-29',location:'Улаанбаатар, ХУД, ТЭЦ-3',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-30',location:'Улаанбаатар, ХУД, Хүүшийн ам',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-32',location:'Улаанбаатар, ЧД, Тасганы овоо',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-33',location:'Улаанбаатар, СБД, Дарь-Эх',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-34',location:'Улаанбаатар, СХД, Шинэ авто зах',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-35',location:'Улаанбаатар, ХУД, Баруун богины ам',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС-36',location:'Улаанбаатар, ХУД, Архивын ерөнхий газрын урд',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС Өндөр дов',location:'Төв аймаг, Сэргэлэн сум',ai92:2590,ai95:4010,diesel:4320},
+      {name:'ШТС Лүн',location:'Төв аймаг, Лүн сум',ai92:2695,ai95:3980,diesel:4420},
+      {name:'ШТС Булган',location:'Булган аймаг, Булган сум',ai92:2720,ai95:4080,diesel:4580},
+      {name:'ШТС Багануур-1',location:'Улаанбаатар, Багануур, 3-р хороо',ai92:2635,ai95:null,diesel:4340},
+      {name:'ШТС Багануур-2',location:'Улаанбаатар, Багануур, 1-р хороо',ai92:2635,ai95:3950,diesel:4340},
+      {name:'ШТС Өвөрхангай-1',location:'Өвөрхангай, Арвайхээр',ai92:2670,ai95:null,diesel:4560},
+      {name:'ШТС Баянхонгор-1',location:'Баянхонгор, Баянхонгор сум',ai92:2725,ai95:4040,diesel:4640},
+      {name:'ШТС Архангай',location:'Архангай, Эрдэнэбулган сум',ai92:2680,ai95:4040,diesel:4570},
+      {name:'ШТС Дундговь-1',location:'Дундговь, Сайнцагаан сум',ai92:2725,ai95:null,diesel:4600},
+      {name:'ШТС Өмнөговь',location:'Өмнөговь, Даланзадгад сум',ai92:2745,ai95:3990,diesel:4600},
+      {name:'ШТС Увс-1',location:'Увс, Улаангом сум',ai92:3090,ai95:4250,diesel:4850},
+      {name:'ШТС Говь-Алтай-1',location:'Говь-Алтай, Алтай сум',ai92:2995,ai95:null,diesel:4800},
+      {name:'ШТС Баян-Өлгий',location:'Баян-Өлгий, Өлгий сум',ai92:3180,ai95:4300,diesel:4600},
+      {name:'ШТС Ховд',location:'Ховд, Жаргалант сум',ai92:3100,ai95:4250,diesel:4700},
+      {name:'ШТС Дорнод-1',location:'Дорнод, Хэрлэн сум',ai92:2730,ai95:4130,diesel:4630},
+      {name:'ШТС Сүхбаатар',location:'Сүхбаатар, Баруун-Урт',ai92:2765,ai95:3660,diesel:4750},
+      {name:'ШТС Сайншанд-1',location:'Дорноговь, Сайншанд сум',ai92:2720,ai95:null,diesel:4700},
+      {name:'ШТС Замын-Үүд',location:'Дорноговь, Замын-Үүд сум',ai92:2780,ai95:4050,diesel:4780},
+      {name:'ШТС Дархан-1',location:'Дархан-Уул, Хонгор сум',ai92:2590,ai95:4090,diesel:4550},
+      {name:'ШТС Эрдэнэт-1',location:'Орхон, Баян-Өндөр сум',ai92:2690,ai95:null,diesel:4550},
+      {name:'ШТС Хөвсгөл-1',location:'Хөвсгөл, Мөрөн сум',ai92:2790,ai95:4080,diesel:4570},
+      {name:'ШТС Завхан',location:'Завхан, Улиастай сум',ai92:3150,ai95:4200,diesel:4950}
+    ].map(x=>({...x,provider:'Шунхлай',fallback:true}));
+    // 2026-06-15-ны ҮСХ/Нийслэлийн статистикийн 7 хоногийн нийтлэгдсэн
+    // мэдээллээс авсан эхний самбар. Интернэт холбогдоход 1212.mn-ийн live хүснэгт
+    // үүнийг автоматаар сольж, бүх 31 нэр төрлийн барааг харуулна.
+    const FALLBACK_PRODUCT_PRICES = [
+      {name:'Хонины мах, ястай',unit:'кг',category:'Мах',price:27413,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Үхрийн мах, ястай',unit:'кг',category:'Мах',price:33883,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Үхрийн мах, цул',unit:'кг',category:'Мах',price:38125,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Гурил, I зэрэг',unit:'кг',category:'Хүнс',price:2506,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Миний Монгол сүү',unit:'л',category:'Сүү, өндөг',price:5059,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Өндөг, Монгол',unit:'ш',category:'Сүү, өндөг',price:616,previous:null,seed:true,asOf:'2026-06-15'},
+      {name:'Төмс, дотоод',unit:'кг',category:'Ногоо',price:3515,previous:null,seed:true,asOf:'2026-06-15'}
+    ];
+
+    // Сүү, сүүн бүтээгдэхүүн болон сода/ундааны тусгай каталог.
+    // Эдгээр нь дэлгүүрийн нийтэлсэн жишиг үнийн snapshot бөгөөд салбар, урамшууллаас шалтгаалан өөр байж болно.
+    // Томоохон онлайн дэлгүүрүүдийн нийтэд нээлттэй бүтээгдэхүүний хуудсаас
+    // 2026-06-29-нд шалгасан үнэ ба бүтээгдэхүүний бодит савлагааны зураг.
+    // Card бүрийн "Эх: ..." холбоосоор яг тухайн барааны эх хуудас нээгдэнэ.
+    // Анхаар: салбар, үлдэгдэл, урамшууллаас болж дэлгүүрийн кассан дээр үнэ өөр байж болно.
+    const FOOD_SHOWCASE_UPDATED = '2026-06-29';
+    const FOOD_SHOWCASE = [
+      // СҮҮ, СҮҮН БҮТЭЭГДЭХҮҮН
+      {id:'mini-mongol-32',group:'Сүү',name:'Миний Монгол сүү 3.2%',unit:'1 л',price:5600,tone:'sky',badge:'1 л',source:'Good Price Market',sourceUrl:'https://goodpricemarket.mn/mn/product/minii-mongol-suu-3-2-toslogtoi-1l-8656020764358',image:'https://www.suu.mn/curator/placeholders/product-9.png?fm=webp&s=ee90dd7e1496d55927e6759c51cdab0b',pack:'МИНИЙ\nМОНГОЛ\nСҮҮ',art:'carton'},
+      {id:'shimt-32',group:'Сүү',name:'Шимт 3.2% тослог сүү',unit:'1 л',price:6000,tone:'sky',badge:'1 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/61010021-3-2-1-121880',image:'https://erp.afta.mn/web/image/product.template/121880/image_1920?unique=59160b2',pack:'ШИМТ\nСҮҮ',art:'carton'},
+      {id:'tsever-tetra',group:'Сүү',name:'Цэвэр сүү тетра',unit:'1 л',price:5900,tone:'mint',badge:'1 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/61010024-1-121883',image:'https://erp.afta.mn/web/image/product.template/121883/image_1920?unique=e33066f',pack:'ЦЭВЭР\nСҮҮ',art:'carton'},
+      {id:'saal-tetra',group:'Сүү',name:'Сааль сүү тетра',unit:'1 л',price:5900,tone:'sky',badge:'1 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/61010039-1-129679',image:'https://erp.afta.mn/web/image/product.template/129679/image_1920?unique=b55305e',pack:'СААЛЬ\nСҮҮ',art:'carton'},
+      {id:'deej-32',group:'Сүү',name:'Дээж 3.2% тослог сүү',unit:'1 л',price:5900,tone:'ice',badge:'3.2%',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/61010022-3-2-1-121881',image:'https://erp.afta.mn/web/image/product.template/121881/image_1920?unique=09f9704',pack:'ДЭЭЖ\nСҮҮ',art:'carton'},
+      {id:'suugiin-tetra',group:'Сүү',name:'Сүүгийн сүү тетра',unit:'1 л',price:6000,tone:'rose',badge:'1 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/61010002-1-121861',image:'https://erp.afta.mn/web/image/product.template/121861/image_1920?unique=4c58cf4',pack:'СҮҮГИЙН\nСҮҮ',art:'carton'},
+
+      // ХИЙЖҮҮЛСЭН УНДАА, СОДА
+      {id:'coke-300',group:'Сода',name:'Coca-Cola',unit:'300 мл',price:1450,tone:'cola',badge:'300 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030016-coca-cola-300-100131',image:'https://erp.afta.mn/web/image/product.template/100131/image_1920?unique=9680af0',pack:'COCA\nCOLA',art:'soda'},
+      {id:'coke-500',group:'Сода',name:'Coca-Cola',unit:'500 мл',price:2050,tone:'cola',badge:'500 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030022-coca-cola-500-100137',image:'https://erp.afta.mn/web/image/product.template/100137/image_1920?unique=0a8897c',pack:'COCA\nCOLA',art:'soda'},
+      {id:'coke-900',group:'Сода',name:'Coca-Cola',unit:'900 мл',price:3600,tone:'cola',badge:'900 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030009-coca-cola-900-100124',image:'https://erp.afta.mn/web/image/product.template/100124/image_1920?unique=9680af0',pack:'COCA\nCOLA',art:'soda'},
+      {id:'coke-1250',group:'Сода',name:'Coca-Cola',unit:'1.25 л',price:4050,tone:'cola',badge:'1.25 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030024-coca-cola-1-250-97500',image:'https://erp.afta.mn/web/image/product.template/97500/image_1920?unique=dc5df8d',pack:'COCA\nCOLA',art:'soda'},
+      {id:'fanta-300',group:'Сода',name:'Fanta олон төрөл',unit:'300 мл',price:1450,tone:'orange',badge:'300 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030010-fanta-300-100125',image:'https://erp.afta.mn/web/image/product.template/100125/image_1920',pack:'FANTA',art:'soda'},
+      {id:'fanta-900',group:'Сода',name:'Fanta',unit:'900 мл',price:3600,tone:'orange',badge:'900 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030041-fanta-900-100156',image:'https://erp.afta.mn/web/image/product.template/100156/image_1920?unique=74ccd68',pack:'FANTA',art:'soda'},
+      {id:'fanta-1250',group:'Сода',name:'Fanta',unit:'1.25 л',price:4050,tone:'orange',badge:'1.25 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030053-fanta-1-250-97503',image:'https://erp.afta.mn/web/image/product.template/97503/image_1920?unique=f8361c1',pack:'FANTA',art:'soda'},
+      {id:'fanta-2l',group:'Сода',name:'Fanta',unit:'2 л',price:5600,tone:'orange',badge:'2 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51030036-fanta-2-100151',image:'https://erp.afta.mn/web/image/product.template/100151/image_1920',pack:'FANTA',art:'soda'},
+      {id:'milkis-250',group:'Сода',name:'Lotte Milkis',unit:'250 мл',price:1700,tone:'ice',badge:'250 мл',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51010089-lotte-milkis-250-99858',image:'https://erp.afta.mn/web/image/product.template/99858/image_1920?unique=95e9cdd',pack:'MILKIS',art:'can'},
+      {id:'milkis-1500',group:'Сода',name:'Lotte Milkis',unit:'1.5 л',price:6900,tone:'ice',badge:'1.5 л',source:'AFTA',sourceUrl:'https://e-afta.mn/shop/51010153-lotte-milkis-1-5-99922',image:'https://erp.afta.mn/web/image/product.template/99922/image_1920?unique=6fc0f1d',pack:'MILKIS',art:'soda'}
+    ];
+
+    const WD=['Ням','Даваа','Мягмар','Лхагва','Пүрэв','Баасан','Бямба'];
+    const WD2=['Ня','Да','Мя','Лх','Пү','Ба','Бя'];
+    const LOAN_DATA_UPDATED = '2026-06-29';
+    /* Нөхцөлүүд нь үйлчилгээ үзүүлэгчдийн олон нийтэд гаргасан мэдээллээс оруулсан жишиг дата.
+       Гэрээ байгуулахын өмнө тухайн аппын хамгийн сүүлийн нөхцөлийг заавал шалгана.
+       Энэхүү загварын тооцоолуурын хугацаа бүх бүтээгдэхүүн дээр 1–60 сар; бизнес зээлийн дээд дүн 500 сая₮. */
+    const LOAN_PROVIDERS = [
+      {id:'lend',name:'LendMN',short:'LEND',logoDomain:'lend.mn',brand:'lend',desc:'Цахим зээл, худалдан авалт болон бизнесийн шийдэл',source:'https://lend.mn/loan-products/',tags:['Хэрэглээний','Худалдан авалт','Бизнес'],products:[
+        {id:'consumer',name:'Хэрэглээний зээл',kind:'Хэрэглээний',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.99,rateMax:4.50,rateDefault:3.0,feeFixed:2500,repayment:'Тооцоолуурт сард 1 удаа',note:'Барьцаагүй; хүү нь зээлийн оноо, нөхцлөөс хамаарна.'},
+        {id:'bnpl',name:'Худалдан авалтын зээл',kind:'Хуваан төлөх',amountMin:1000,amountMax:300000000,termMin:1,termMax:60,termUnit:'month',rateMin:0,rateMax:0,rateDefault:0,feeFixed:0,repayment:'Тооцоолуурт сард 1 удаа',note:'30 эсвэл 60 хоног; 0% хүү гэсэн нийтэд зарласан нөхцөлтэй.'},
+        {id:'business',name:'Flexi бизнесийн зээл',kind:'Бизнес',amountMin:2000000,amountMax:500000000,termMin:1,termMax:60,termUnit:'month',rateMin:3.99,rateMax:4.50,rateDefault:4.20,feeRate:0,repayment:'Сард 1 удаа',note:'Тооцоолуурын хязгаар: 500 сая₮ хүртэл, 60 сар хүртэл. Бизнесийн орлого, шаардлага болон онооноос шалтгаална.'}
+      ]},
+      {id:'moni',name:'Moni',short:'M',logoDomain:'moni.mn',brand:'moni',desc:'Цахим хэрэглээний болон урт хугацааны зээл',source:'https://moni.mn/',tags:['Хэрэглээний','Уртаар','Скоринг'],products:[
+        {id:'short',name:'Хэрэглээний зээл',kind:'Хэрэглээний',amountMin:300000,amountMax:2000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.5,rateMax:5.0,rateDefault:3.5,feeRate:0,repayment:'Тооцоолуурт сард 1 удаа',note:'Албан ёсны нөхцөлд сарын хүү нь скорингоор тооцогдоно гэж заасан. Тооцоолуурт нийтэд зарласан хүүгийн хүрээний дээд утгыг жишиг болгон ашиглана.'},
+        {id:'long',name:'“Уртаар” зээл',kind:'Урт хугацаа',amountMin:300000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.5,rateMax:5.0,rateDefault:3.5,feeRate:0,repayment:'Сард 1 удаа',note:'5,000,000₮ хүртэл, 12 сар хүртэл гэсэн нийтэд зарласан хүрээ.'}
+      ]},
+      {id:'pocket',name:'Pocket',short:'P',logoDomain:'pocket.mn',brand:'pocket',desc:'AI скорингтой цахим зээл, лизинг',source:'https://pocket.mn/',tags:['Цахим зээл','Лизинг','Барьцаагүй'],products:[
+        {id:'digital',name:'Цахим зээл',kind:'Хэрэглээний',amountMin:50000,amountMax:50000000,termMin:1,termMax:60,termUnit:'month',rateMin:4.5,rateMax:4.5,rateDefault:4.5,feeRate:1.5,repayment:'Сард 1 удаа',note:'Албан сайтад урт хугацаат зээлийн сарын хүү 4.5% гэж нийтэлсэн. Тооцоолуурт 1–60 сар сонгож тооцно.'},
+        {id:'leasing',name:'Pocket Leasing',kind:'Хуваан төлөх',amountMin:100000,amountMax:10000000,termMin:1,termMax:60,termUnit:'month',rateMin:0,rateMax:0,rateDefault:0,feeRate:0,repayment:'Сард 1 удаа',note:'Сонгогдсон хамтрагч байгууллагаас урьдчилгаагүй, шимтгэлгүй нөхцөлтэй гэж нийтэлсэн.'}
+      ]},
+      {id:'storepay',name:'Storepay',short:'SP',logoDomain:'storepay.mn',brand:'storepay',desc:'Дэлгүүр болон онлайн худалдан авалтаа хуваан төлөх үйлчилгээ',source:'https://storepay.mn/',tags:['Хуваан төлөх','QR','Худалдан авалт'],products:[
+        {id:'installment',name:'Хуваан төлөх эрх',kind:'Худалдан авалт',amountMin:100000,amountMax:10000000,termMin:1,termMax:60,termUnit:'month',rateMin:0,rateMax:0,rateDefault:0,feeRate:0,repayment:'Тооцоолуурт сард 1 удаа',note:'10 гаруй нөхцөлөөс сонгон 30–75 хоногт хуваан төлөх мэдээлэлтэй. Яг төлбөр/шимтгэлийг сонгосон нөхцөл дээр шалгана.'}
+      ]},
+      {id:'ard',name:'Ard App / Ard Credit',short:'A',logoDomain:'ardcredit.com',brand:'ard',desc:'Богино, урт, автомашин, бизнес, барьцаат зээл',source:'https://ardcredit.com/loan',tags:['Хэрэглээний','Автомашин','Бизнес'],products:[
+        {id:'short',name:'Богино хугацаат зээл',kind:'Хэрэглээний',amountMin:500000,amountMax:3000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.0,rateMax:4.5,rateDefault:3.0,feeRate:5.0,repayment:'Тооцоолуурт сард 1 удаа',note:'₮3 сая хүртэл, 30 хоног; шимтгэл 5% гэж нийтэлсэн.'},
+        {id:'long',name:'Урт хугацаат зээл',kind:'Хэрэглээний',amountMin:500000,amountMax:20000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.0,rateMax:4.5,rateDefault:3.0,feeRate:1.0,feeFixed:3000,repayment:'Сард 1 удаа',note:'Тооцоолуурт 1–60 сар сонгож тооцно. FICO/ЗМС мэдээллийн үйлчилгээний 3,000₮ хураамж тусад нь байж болзошгүй.'},
+        {id:'auto',name:'Автомашины зээл',kind:'Автомашин',amountMin:1000000,amountMax:300000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.8,rateMax:2.9,rateDefault:2.4,feeRate:0,repayment:'Сард 1 удаа',note:'Тооцоолуурт 1–60 сар сонгож тооцно. Урьдчилгаа болон барьцааны нөхцөл шаардлагатай.'},
+        {id:'business',name:'Бизнесийн зээл',kind:'Бизнес',amountMin:1000000,amountMax:500000000,termMin:1,termMax:60,termUnit:'month',rateMin:3.5,rateMax:4.0,rateDefault:3.7,feeRate:1.0,repayment:'Сард 1 удаа',note:'Тооцоолуурын хязгаар: 500 сая₮ хүртэл, 60 сар хүртэл. Тогтвортой бизнесийн орлого, зээлийн түүхийн шалгууртай.'}
+      ]},
+      {id:'ikh',name:'IHM Credit',short:'IH',logoDomain:'ikhmongolcredit.mn',brand:'ikh',desc:'Онлайн, дугаар болон хөрөнгө барьцаалсан зээл',source:'https://ikhmongolcredit.mn/loan?lang_id=en',tags:['Онлайн','Дугаар','Барьцаат'],products:[
+        {id:'online',name:'Онлайн зээл',kind:'Онлайн',amountMin:3000000,amountMax:15000000,termMin:1,termMax:60,termUnit:'month',rateMin:5.0,rateMax:5.0,rateDefault:5.0,feeFixed:5000,repayment:'Сард 1 удаа',note:'Нийтэд гаргасан англи хэл дээрх нөхцөл: 5%, 6 сар хүртэл.'},
+        {id:'number',name:'Утасны дугаар барьцаалсан',kind:'Барьцаат',amountMin:3000000,amountMax:15000000,termMin:1,termMax:60,termUnit:'month',rateMin:3.0,rateMax:3.0,rateDefault:3.0,feeRate:1.0,repayment:'Сард 1 удаа',note:'Жишиг үнэлгээнд тэнцсэн дугаар барьцаална.'}
+      ]},
+      {id:'payon',name:'PayOn',short:'PayOn',logoDomain:'payon.mn',brand:'payon',desc:'Цахим зээл болон бараа бүтээгдэхүүнийг зээлээр худалдан авах үйлчилгээ',source:'https://payon.mn/',tags:['Онлайн','Хэрэглээний','Худалдан авалт'],products:[
+        {id:'digital',name:'Цахим зээл',kind:'Онлайн',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.9,rateMax:3.0,rateDefault:2.45,feeRate:0,repayment:'Сард 1 удаа',note:'Нийтэд ил тод тавигдсан нөхцөл: 50,000₮–5,000,000₮, 3–24 сар, сарын 1.9%–3.0%. Эрх, хүү нь үнэлгээнээс хамаарна.'},
+        {id:'leaseon',name:'LeaseOn худалдан авалтын зээл',kind:'Худалдан авалт',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.9,rateMax:3.0,rateDefault:2.45,feeRate:0,repayment:'Сард 1 удаа',note:'Хамтран ажиллагч дэлгүүрийн бараа, бүтээгдэхүүнийг зээлээр авах нөхцөлийг апп дотроос эцэслэн шалгана.'}
+      ]},
+      {id:'simple',name:'Simple',short:'S',logoDomain:'simple.mn',brand:'simple',desc:'Дижитал, бизнес болон бусад төрлийн санхүүгийн үйлчилгээ',source:'https://simple.mn/digital',tags:['Онлайн','Хэрэглээний','Бизнес'],products:[
+        {id:'digital',name:'Дижитал зээл',kind:'Онлайн',amountMin:50000,amountMax:35000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.3,rateMax:3.9,rateDefault:3.1,feeRate:0,repayment:'Сард 1 удаа',note:'Тооцоолуурт 1–60 сар сонгож тооцно. Бодит дүн, хүү, хугацаа нь зээлжих эрхээс хамаарна.'},
+        {id:'business',name:'Бизнесийн зээл',kind:'Бизнес',amountMin:1000000,amountMax:500000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.8,rateMax:2.8,rateDefault:2.8,feeRate:0,repayment:'Сард 1 удаа',note:'Албан сайтад сарын хүү 2.8% гэж нийтэлсэн. Тооцоолуурын хязгаар: 500 сая₮ хүртэл, 60 сар хүртэл.'}
+      ]},
+      {id:'mbank',name:'M bank',short:'M',logoDomain:'m-bank.mn',brand:'mbank',desc:'Бүрэн дижитал банкны хэрэглээний болон дижитал зээлийн үйлчилгээ',source:'https://m-bank.mn/retail/digital-loan',tags:['Онлайн','Хэрэглээний','Худалдан авалт'],products:[
+        {id:'digital',name:'Дижитал зээл',kind:'Онлайн',amountMin:100000,amountMax:50000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.2,rateMax:2.4,rateDefault:2.4,rateLabel:'14.40%–28.8% / жил',feeRate:1.0,feeFixed:2000,repayment:'Сард 1 удаа',note:'Албан сайт дээр жилийн 14.40%–28.8% гэж заасан. Тооцоолуур дээр зарласан дээд жилийн хүүг 12-д хуваасан сарын 2.40%-иар жишиглэв; шимтгэл 1% + эрх шинэчлэх 2,000₮.'},
+        {id:'sain',name:'Сайн — хэрэглээний зээл',kind:'Худалдан авалт',amountMin:500000,amountMax:10000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.2,rateMax:2.4,rateDefault:2.4,rateLabel:'26.4%–28.8% / жил',feeRate:1.0,repayment:'Сард 1 удаа',note:'Албан сайт дээр жилийн 26.4%–28.8% гэж заасан. Тооцоолуур дээр зарласан дээд жилийн хүүг 12-д хуваасан сарын 2.40%-иар жишиглэв; шимтгэл 1% (дээд 200,000₮).'}
+      ]}
+    ];
+    const LOAN_FILTERS = ['Бүгд','Хэрэглээний','Онлайн','Худалдан авалт','Хуваан төлөх','Автомашин','Бизнес','Барьцаат'];
+
+    const $ = (s, root=document) => root.querySelector(s);
+    const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+    const pad = n => String(n).padStart(2,'0');
+    const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+    const monthOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
+    const daysInMonth = ms => { const [y,m]=ms.split('-').map(Number); return new Date(y,m,0).getDate(); };
+    const fmt = n => Math.round(Math.abs(Number(n)||0)).toLocaleString('en-US');
+    const fmtMoney = (v, code) => ['MNT','KRW','JPY','RUB'].includes(code) ? Math.round(v||0).toLocaleString('en-US') : (v||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const fmtRate = v => v >= 10 ? Math.round(v).toLocaleString('en-US') : (v||0).toFixed(2);
+    const h = (str='') => String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    const dateLabel = ts => { if(!ts) return ''; const d=new Date(ts); return `${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+    const store={
+      get(key, fallback){ try{ const raw=localStorage.getItem(key); return raw?JSON.parse(raw):fallback; }catch(e){ return fallback; }},
+      set(key,val){ try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){} }
+    };
+
+    const state={
+      tab:'dans', view:'menu', selYear:new Date().getFullYear(), selMonth:monthOf(new Date()), selDate:todayStr(),
+      tx:store.get('gerdans-transactions',[]), notes:store.get('gerdans-notes',{}), type:'expense', category:CATS.expense[0], confirmId:null,
+      rates:null, ratesFetchedAt:0, ratesUpdatedAt:0, ratesLoading:false, ratesError:'',
+      cvAmount:'1', cvFrom:'USD', cvTo:'MNT',
+      cityIdx:0, weather:null, weatherFetchedAt:0, weatherLoading:false, weatherError:'',
+      prices:FALLBACK_PRODUCT_PRICES.slice(), pricesDate:'2026-06-15', pricesPreviousDate:'', pricesFetchedAt:0, pricesLoading:false, pricesError:'', pricesIsFallback:true, priceCategory:'Шатахуун',
+      fuelStations:FALLBACK_FUEL_STATIONS.slice(), fuelFetchedAt:0, fuelLoading:false, fuelError:'', fuelIsFallback:true, fuelSearch:'', fuelArea:'Бүгд', fuelShowAll:false,
+      loanView:'list', loanFilter:'Бүгд', loanSearch:'', loanProviderId:'lend', loanProductId:'consumer',
+      loanAmount:500000, loanTerm:30, loanRate:3.0, loanIncome:'', loanDebt:'', loanAge:'', loanWorkMonths:'', debts:store.get('gerdans-debt-tracker-v1',[]), debtAddOpen:false, debtYear:new Date().getFullYear(), debtMonth:new Date().getMonth()+1
+    };
+    const cachedRates=store.get('gerdans-live-rates',null);
+    if(cachedRates && cachedRates.rates){ state.rates=cachedRates.rates; state.ratesFetchedAt=cachedRates.fetchedAt||0; state.ratesUpdatedAt=cachedRates.updatedAt||0; }
+    const cachedWeather=store.get('gerdans-live-weather',null);
+    if(cachedWeather && cachedWeather.data){ state.weather=cachedWeather.data; state.weatherFetchedAt=cachedWeather.fetchedAt||0; state.cityIdx=cachedWeather.cityIdx||0; }
+    const cachedPrices=store.get('gerdans-product-prices',null);
+    if(cachedPrices && Array.isArray(cachedPrices.items) && cachedPrices.items.length){ state.prices=cachedPrices.items; state.pricesDate=cachedPrices.latestDate||''; state.pricesPreviousDate=cachedPrices.previousDate||''; state.pricesFetchedAt=cachedPrices.fetchedAt||0; state.pricesIsFallback=false; }
+    const cachedFuel=store.get('gerdans-live-fuel-stations',null);
+    if(cachedFuel && Array.isArray(cachedFuel.items) && cachedFuel.items.length){ state.fuelStations=cachedFuel.items; state.fuelFetchedAt=cachedFuel.fetchedAt||0; state.fuelIsFallback=false; }
+
+    function saveTx(){ store.set('gerdans-transactions',state.tx); }
+    function saveNotes(){ store.set('gerdans-notes',state.notes); }
+    function wxInfo(code){
+      if(code===0)return {t:'Цэлмэг',i:'☀️'}; if(code===1||code===2)return {t:'Багавтар үүлтэй',i:'🌤️'};
+      if(code===3)return {t:'Үүлэрхэг',i:'☁️'}; if(code===45||code===48)return {t:'Манантай',i:'🌫️'};
+      if(code>=51&&code<=57)return {t:'Шиврээ бороо',i:'🌦️'}; if(code>=61&&code<=67)return {t:'Бороотой',i:'🌧️'};
+      if(code>=71&&code<=77)return {t:'Цастай',i:'🌨️'}; if(code>=80&&code<=82)return {t:'Аадар бороо',i:'🌧️'};
+      if(code>=85&&code<=86)return {t:'Цасан шуурга',i:'🌨️'}; if(code>=95)return {t:'Цахилгаантай',i:'⛈️'};
+      return {t:'Тодорхойгүй',i:'☁️'};
+    }
+    function syncHeader(){
+      const titles={dans:['▣','Гэрийн данс'],hansh:['⇄','Валютын ханш'],weather:['☁','Цаг агаар'],price:['⛽','Шатахууны үнэ'],loan:['₮','Зээлийн сонголт'],debts:['✓','Миний зээл']};
+      $('#brandIcon').textContent=titles[state.tab][0]; $('#brandTitle').textContent=titles[state.tab][1];
+      const area=$('#headerActions');
+      if(state.tab==='dans'){
+        area.innerHTML=`<div class="monthnav"><button data-act="prev-year" aria-label="Өмнөх жил">‹</button><span class="month-label">${state.selYear} он</span><button data-act="next-year" aria-label="Дараагийн жил">›</button></div>`;
+      }else if(state.tab==='hansh'){
+        const stale=state.ratesFetchedAt && (Date.now()-state.ratesFetchedAt>CONFIG.RATES_REFRESH_MS);
+        area.innerHTML=`<div class="net-status"><span class="net-dot ${state.ratesError?'error':state.rates?'live':''}"></span><span>${state.ratesLoading?'Шинэчилж байна…':state.ratesError?'Offline':stale?'Хуучирсан':'Live'}</span></div><button class="icon-btn" data-act="refresh-rates" aria-label="Ханш шинэчлэх"><span class="${state.ratesLoading?'spin':''}">↻</span></button>`;
+      }else if(state.tab==='weather'){
+        const stale=state.weatherFetchedAt && (Date.now()-state.weatherFetchedAt>CONFIG.WEATHER_REFRESH_MS);
+        area.innerHTML=`<div class="net-status"><span class="net-dot ${state.weatherError?'error':state.weather?'live':''}"></span><span>${state.weatherLoading?'Шинэчилж байна…':state.weatherError?'Offline':stale?'Хуучирсан':'Live'}</span></div><button class="icon-btn" data-act="refresh-weather" aria-label="Цаг агаар шинэчлэх"><span class="${state.weatherLoading?'spin':''}">↻</span></button>`;
+      }else if(state.tab==='loan'){
+        area.innerHTML=`<div class="net-status"><span class="net-dot live"></span><span>Нөхцөл шалгах</span></div>`;
+      }else if(state.tab==='debts'){
+        area.innerHTML=`<div class="monthnav"><button data-act="debt-prev-year" aria-label="Өмнөх жил">‹</button><span class="month-label">${state.debtYear} он</span><button data-act="debt-next-year" aria-label="Дараагийн жил">›</button></div><button class="icon-btn" data-act="open-debt-add" aria-label="Зээл нэмэх">＋</button>`;
+      }else{
+        const fuelMode=state.priceCategory==='Шатахуун';
+        const fetchedAt=fuelMode?state.fuelFetchedAt:state.pricesFetchedAt;
+        const refreshMs=fuelMode?CONFIG.FUEL_REFRESH_MS:CONFIG.PRICE_REFRESH_MS;
+        const loading=fuelMode?state.fuelLoading:state.pricesLoading;
+        const error=fuelMode?state.fuelError:state.pricesError;
+        const hasData=fuelMode?state.fuelStations.length:state.prices.length;
+        const stale=fetchedAt && (Date.now()-fetchedAt>refreshMs);
+        const label=fuelMode?(loading?'ШТС шалгаж байна…':error?'Offline':stale?'Хуучирсан':'Live'):(loading?'Шалгаж байна…':error?'Offline':state.pricesIsFallback?'Суурь үнэ':stale?'Шалгах хэрэгтэй':'Live');
+        const action=fuelMode?'refresh-fuel':'refresh-prices';
+        area.innerHTML=`<div class="net-status"><span class="net-dot ${error?'error':hasData?'live':''}"></span><span>${label}</span></div><button class="icon-btn" data-act="${action}" aria-label="Үнэ шинэчлэх"><span class="${loading?'spin':''}">↻</span></button>`;
+      }
+    }
+
+    function renderFinance(){
+      const root=$('#tab-dans');
+      if(state.view==='menu'){
+        const yearTx=state.tx.filter(t=>t.date&&t.date.startsWith(state.selYear+'-'));
+        const yIn=yearTx.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
+        const yEx=yearTx.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+        const bal=yIn-yEx, curMonth=monthOf(new Date());
+        const months=Array.from({length:12},(_,i)=>{
+          const ms=`${state.selYear}-${pad(i+1)}`; const tx=state.tx.filter(t=>t.date&&t.date.startsWith(ms));
+          const inc=tx.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0), exp=tx.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+          return {ms,n:i+1,inc,exp,bal:inc-exp,empty:inc===0&&exp===0,isCur:ms===curMonth};
+        });
+        root.innerHTML=`
+          <div class="section-stack">
+            <section class="hero"><div class="hero-label">${state.selYear} оны үлдэгдэл</div><div class="hero-value mono ${bal<0?'neg':''}">${bal<0?'−':''}${fmt(bal)}<span class="cur">₮</span></div><div class="bar"><div class="bar-meta"><span><i class="dot in"></i>Орлого <b class="mono">${fmt(yIn)}₮</b></span><span><i class="dot ex"></i>Зарлага <b class="mono">${fmt(yEx)}₮</b></span></div></div></section>
+            <button class="today-btn" data-act="write-today">＋ Өнөөдөр бичих</button>
+            <section><h3 class="section-h">Сар бүрээр</h3><div class="month-grid">${months.map(m=>`<button class="mcard ${m.isCur?'cur':''} ${m.empty?'empty':''}" data-month="${m.ms}"><div class="mcard-top"><span class="mcard-name">${m.n}-р сар</span>${m.isCur?'<span class="mcard-now">одоо</span>':''}</div><div class="mcard-bal mono ${m.bal<0?'neg':''}">${m.empty?'—':`${m.bal<0?'−':''}${fmt(m.bal)}₮`}</div>${m.empty?'':`<div class="mcard-io"><span class="mono in">+${fmt(m.inc)}</span><span class="mono ex">−${fmt(m.exp)}</span></div>`}</button>`).join('')}</div></section>
+          </div>`;
+      }else{
+        const mTx=state.tx.filter(t=>t.date&&t.date.startsWith(state.selMonth));
+        const inc=mTx.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0), exp=mTx.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0), bal=inc-exp;
+        const pct=inc>0?Math.min(100,exp/inc*100):(exp>0?100:0), dim=daysInMonth(state.selMonth), today=todayStr();
+        const dList=Array.from({length:dim},(_,i)=>{const ds=`${state.selMonth}-${pad(i+1)}`, dt=new Date(ds);return {ds,d:i+1,wd:WD2[dt.getDay()],has:state.tx.some(t=>t.date===ds),sel:ds===state.selDate,today:ds===today};});
+        const dayTx=state.tx.filter(t=>t.date===state.selDate), dNet=dayTx.reduce((s,t)=>s+(t.type==='income'?Number(t.amount):-Number(t.amount)),0), sd=new Date(state.selDate);
+        const dayLabel=`${parseInt(state.selMonth.split('-')[1],10)}-р сарын ${sd.getDate()}, ${WD[sd.getDay()]}`;
+        const categoryOptions=CATS[state.type].map(c=>`<option ${c===state.category?'selected':''}>${h(c)}</option>`).join('');
+        root.innerHTML=`
+          <div class="section-stack">
+            <div class="brand detail-head"><button class="back" data-act="back-menu">‹ Нүүр</button><span class="detail-title">${state.selMonth.split('-')[0]} оны ${parseInt(state.selMonth.split('-')[1],10)}-р сар</span><span class="brand-mark">▣</span></div>
+            <section class="hero"><div class="hero-label">Сарын үлдэгдэл</div><div class="hero-value mono ${bal<0?'neg':''}">${bal<0?'−':''}${fmt(bal)}<span class="cur">₮</span></div><div class="bar"><div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div><div class="bar-meta"><span><i class="dot in"></i>Орлого <b class="mono">${fmt(inc)}₮</b></span><span><i class="dot ex"></i>Зарлага <b class="mono">${fmt(exp)}₮</b></span></div></div></section>
+            <section class="card"><div class="day-strip-head"><h3 class="card-title">▣ Өдөр сонгох</h3>${today.startsWith(state.selMonth)&&state.selDate!==today?'<button class="today-chip" data-act="go-today">Өнөөдөр</button>':''}</div><div class="daystrip">${dList.map(d=>`<button class="chip ${d.sel?'sel':''} ${d.has?'has':''} ${d.today?'today':''}" data-day="${d.ds}"><span class="cwd">${d.wd}</span><span class="cn">${d.d}</span><span class="cdot"></span></button>`).join('')}</div><div class="day-head"><span class="day-label">${dayLabel}</span><span class="day-net mono ${dNet>=0?'pos':'neg'}">${dNet>=0?'+':'−'}${fmt(dNet)}₮</span></div>
+              <div class="add"><div class="seg ${state.type}"><button class="${state.type==='expense'?'active':''}" data-act="type-expense">Зарлага</button><button class="${state.type==='income'?'active':''}" data-act="type-income">Орлого</button></div><div class="amount-field"><input id="amountInput" class="mono" type="number" min="0" inputmode="numeric" placeholder="0"><span>₮</span></div><div class="row2"><label class="field"><span>Ангилал</span><select id="categoryInput">${categoryOptions}</select></label><label class="field"><span>Тэмдэглэл <i>(заавал биш)</i></span><input id="descInput" type="text" placeholder="ж: дэлгүүр…"></label></div><button id="addBtn" class="addbtn ${state.type}" disabled>${state.type==='income'?'Орлого':'Зарлага'} нэмэх</button></div>
+              <div class="day-list">${dayTx.length?dayTx.map(t=>`<div class="entry"><i class="entry-dot ${t.type}"></i><div class="entry-main"><span class="entry-cat">${h(t.category)}</span>${t.desc?`<span class="entry-desc">${h(t.desc)}</span>`:''}</div>${state.confirmId===t.id?`<div class="confirm"><button class="c-yes" data-delete="${t.id}">Устгах</button><button class="c-no" data-act="cancel-delete">Болих</button></div>`:`<><span class="entry-amt mono ${t.type}">${t.type==='income'?'+':'−'}${fmt(t.amount)}₮</span><button class="delbtn" data-confirm="${t.id}" title="Устгах">⌫</button></>`}</div>`).join(''):'<div class="empty">Энэ өдөр бичилт алга.<br>Дээрээс орлого, зарлагаа нэмээрэй.</div>'}</div>
+            </section>
+            <section class="card"><div class="note-head"><h3 class="card-title">Сарын дүгнэлт</h3><span id="noteStatus" class="note-status ${state.notes[state.selMonth]?'saved':''}">${state.notes[state.selMonth]?'Хадгалагдсан ✓':''}</span></div><textarea id="monthNote" rows="4" placeholder="Энэ сар мөнгөө хэрхэн зарцуулсан бэ? Дараа сард юу өөрчлөх вэ?…">${h(state.notes[state.selMonth]||'')}</textarea></section>
+          </div>`;
+        setTimeout(()=>$('.chip.sel',root)?.scrollIntoView({inline:'center',block:'nearest'}),20);
+      }
+    }
+
+    function renderRates(){
+      const root=$('#tab-hansh'), rates=state.rates;
+      let conv='—', rateLine='';
+      if(rates?.[state.cvFrom]&&rates?.[state.cvTo]){const amt=parseFloat(state.cvAmount)||0;conv=fmtMoney(amt/rates[state.cvFrom]*rates[state.cvTo],state.cvTo);rateLine=`1 ${state.cvFrom} = ${fmtMoney(1/rates[state.cvFrom]*rates[state.cvTo],state.cvTo)} ${state.cvTo}`;}
+      const options=selected=>CURRENCIES.map(c=>`<option value="${c.code}" ${c.code===selected?'selected':''}>${c.code}</option>`).join('');
+      root.innerHTML=`<div class="section-stack">
+        ${state.ratesError?`<div class="notice"><span>${h(state.ratesError)}${rates?' Хамгийн сүүлчийн хадгалсан ханш харагдаж байна.':' Интернет холболтоо шалгаарай.'}</span><button data-act="refresh-rates">Дахин</button></div>`:''}
+        <section class="card conv-card"><h3 class="card-title">Хөрвүүлэгч</h3><div class="conv-row"><input id="cvAmount" class="conv-amount" type="number" min="0" step="any" inputmode="decimal" value="${h(state.cvAmount)}" placeholder="0"><select id="cvFrom" class="cur-sel">${options(state.cvFrom)}</select></div><div class="conv-swap"><button data-act="swap-cur" aria-label="Валют солих">⇄</button></div><div class="conv-row"><div class="conv-result">${conv}</div><select id="cvTo" class="cur-sel">${options(state.cvTo)}</select></div>${rateLine?`<div class="conv-note">${rateLine}</div>`:''}</section>
+        <section class="card"><div class="rates-head"><h3 class="card-title">Төгрөгийн ханш</h3><span class="upd">${state.ratesUpdatedAt?'Эх сурвалж: '+dateLabel(state.ratesUpdatedAt):state.ratesFetchedAt?'Татсан: '+dateLabel(state.ratesFetchedAt):''}</span></div>
+        ${state.ratesLoading&&!rates?'<div class="loadingline">Ханш уншиж байна…</div>':rates?`<div class="rate-list">${RATE_CODES.map(code=>{const c=CURRENCIES.find(x=>x.code===code);const per=rates.MNT/rates[code];return `<div class="rate-row"><div class="rate-l"><span class="rate-sym">${c.symbol}</span><div><div class="rate-code">1 ${code}</div><div class="rate-name">${c.name}</div></div></div><div class="rate-val mono">${fmtRate(per)}₮</div></div>`}).join('')}</div><div class="source">Эх сурвалж: open.er-api.com · 1 цаг тутам шинэчилнэ</div>`:'<div class="empty-state">Live ханш авах боломжгүй байна.</div>'}</section>
+      </div>`;
+    }
+
+    function updateConverterOnly(){
+      const out=$('#tab-hansh .conv-result'), note=$('#tab-hansh .conv-note');
+      if(!out) return;
+      let conv='—', rateLine='';
+      const rates=state.rates;
+      if(rates?.[state.cvFrom]&&rates?.[state.cvTo]){
+        const amt=parseFloat(state.cvAmount)||0;
+        conv=fmtMoney(amt/rates[state.cvFrom]*rates[state.cvTo],state.cvTo);
+        rateLine=`1 ${state.cvFrom} = ${fmtMoney(1/rates[state.cvFrom]*rates[state.cvTo],state.cvTo)} ${state.cvTo}`;
+      }
+      out.textContent=conv;
+      if(note) note.textContent=rateLine;
+    }
+
+    function renderWeather(){
+      const root=$('#tab-weather'), wx=state.weather, city=CITIES[state.cityIdx];
+      root.innerHTML=`<div class="section-stack">
+        ${state.weatherError?`<div class="notice"><span>${h(state.weatherError)}${wx?' Хамгийн сүүлчийн хадгалсан мэдээ харагдаж байна.':' Интернет холболтоо шалгаарай.'}</span><button data-act="refresh-weather">Дахин</button></div>`:''}
+        <div class="city-strip">${CITIES.map((c,i)=>`<button class="city-chip ${i===state.cityIdx?'sel':''}" data-city="${i}">${c.name}</button>`).join('')}</div>
+        ${state.weatherLoading&&!wx?'<section class="card"><div class="loadingline">Цаг агаар уншиж байна…</div></section>':wx?weatherMarkup(wx,city):'<section class="card"><div class="empty-state">Live цаг агаар авах боломжгүй байна.</div></section>'}
+      </div>`;
+    }
+    function weatherMarkup(wx,city){
+      const cur=wx.current, wi=wxInfo(cur.weather_code);
+      return `<section class="card wx-current"><div class="wx-city">⌖ ${city.name}</div><div class="wx-main"><span class="wx-icon">${wi.i}</span><span class="wx-temp mono">${Math.round(cur.temperature_2m)}°</span></div><div class="wx-desc">${wi.t}</div><div class="wx-meta"><span>💧 ${Math.round(cur.relative_humidity_2m)}%</span><span>〰 ${Math.round(cur.wind_speed_10m)} км/ц</span><span>Мэдрэгдэх ${Math.round(cur.apparent_temperature)}°</span></div></section>
+      <section class="card"><div class="tab-title-row"><h3 class="card-title">7 хоногийн урьдчилсан мэдээ</h3><span class="right-info">${state.weatherFetchedAt?'Шинэчилсэн '+dateLabel(state.weatherFetchedAt):''}</span></div><div class="fc-list">${wx.daily.time.map((d,i)=>{const w=wxInfo(wx.daily.weather_code[i]);const dt=new Date(d+'T12:00:00');return `<div class="fc-row"><span class="fc-day">${i===0?'Өнөөдөр':WD[dt.getDay()]}</span><span class="fc-icon">${w.i}</span><span class="fc-temp mono"><b>${Math.round(wx.daily.temperature_2m_max[i])}°</b><i>${Math.round(wx.daily.temperature_2m_min[i])}°</i></span></div>`}).join('')}</div><div class="source">Эх сурвалж: open-meteo.com · 15 мин тутам шинэчилнэ</div></section>`;
+    }
+
+
+    function priceIcon(name){
+      const n=name.toLowerCase();
+      if(n.includes('гурил')||n.includes('талх')||n.includes('будаа')) return '🌾';
+      if(n.includes('мах')) return '🥩';
+      if(n.includes('сүү')||n.includes('тараг')||n.includes('цөцгийн')||n.includes('өндөг')) return '🥛';
+      if(n.includes('төмс')||n.includes('лууван')||n.includes('байцаа')||n.includes('манжин')||n.includes('сонгино')||n.includes('алим')) return '🥬';
+      if(n.includes('бензин')||n.includes('дизел')) return '⛽';
+      if(n.includes('элсэн чихэр')) return '🧂';
+      if(n.includes('тос')) return '🫗';
+      return '🛒';
+    }
+    function priceCategory(name){
+      const n=name.toLowerCase();
+      if(n.includes('бензин')||n.includes('дизел')) return 'Шатахуун';
+      if(n.includes('мах')) return 'Мах';
+      if(n.includes('сүү')||n.includes('тараг')||n.includes('цөцгийн')||n.includes('өндөг')) return 'Сүү, өндөг';
+      if(n.includes('төмс')||n.includes('лууван')||n.includes('байцаа')||n.includes('манжин')||n.includes('сонгино')||n.includes('алим')) return 'Ногоо';
+      return 'Хүнс';
+    }
+    function formatPriceDate(iso){
+      if(!iso) return '—';
+      const parts=iso.split('-'); return parts.length===3 ? `${Number(parts[1])}-р сарын ${Number(parts[2])}` : iso;
+    }
+    function parsePxValues(json){
+      if(Array.isArray(json?.value)) return json.value;
+      if(json?.value && typeof json.value==='object') return Object.keys(json.value).sort((a,b)=>Number(a)-Number(b)).map(k=>json.value[k]);
+      return [];
+    }
+    function pxIndexMap(dimension, code){
+      const idx=dimension?.[code]?.category?.index;
+      if(Array.isArray(idx)) return new Map(idx.map((v,i)=>[v,i]));
+      if(idx && typeof idx==='object') return new Map(Object.entries(idx));
+      return new Map();
+    }
+    function statValueAt(json, ids, positions){
+      const sizes=json.size||ids.map(id=>Object.keys(json.dimension?.[id]?.category?.index||{}).length);
+      let flat=0,mul=1;
+      for(let i=ids.length-1;i>=0;i--){ flat+=(positions[i]||0)*mul; mul*=sizes[i]||1; }
+      return parsePxValues(json)[flat];
+    }
+    function renderPriceTabs(){
+      const cats=['Бүгд','Мах','Хүнс','Сүү','Сода','Ногоо','Шатахуун'];
+      return `<div class="price-cats">${cats.map(c=>`<button class="price-cat ${state.priceCategory===c?'active':''}" data-pricecat="${c}">${c}</button>`).join('')}</div>`;
+    }
+    function fuelMoney(n){ return Number.isFinite(Number(n)) ? `${fmt(n)}₮` : '—'; }
+    function fuelLocationIsUlaanbaatar(location=''){ return /\b(УБ\s*хот|Улаанбаатар|Багануур|Налайх)\b/i.test(location); }
+    function fuelProduct(name,value,muted=false){ return `<div class="fuel-product ${muted?'muted':''}"><small>${name}</small><b>${value}</b></div>`; }
+    function fuelReferenceCard(kind, ref, extra=''){ return `<div class="fuel-reference ${extra}"><small>${ref.label}</small><b>${fmt(ref.price)}₮</b><span>${ref.range}</span></div>`; }
+    function stationFuelValue(station, keys){ for(const key of keys){ if(Number.isFinite(Number(station[key]))) return {value:station[key],key}; } return null; }
+    function renderFuelPrices(){
+      const root=$('#tab-price');
+      const all=state.fuelStations&&state.fuelStations.length?state.fuelStations:FALLBACK_FUEL_STATIONS;
+      const query=String(state.fuelSearch||'').trim().toLowerCase();
+      const filtered=all.filter(s=>{
+        const byArea=state.fuelArea==='Бүгд'||(state.fuelArea==='Улаанбаатар'?fuelLocationIsUlaanbaatar(s.location):!fuelLocationIsUlaanbaatar(s.location));
+        const byQuery=!query||`${s.name||''} ${s.location||''}`.toLowerCase().includes(query);
+        return byArea&&byQuery;
+      });
+      const showing=state.fuelShowAll?filtered:filtered.slice(0,30);
+      const ai92List=filtered.filter(s=>Number.isFinite(Number(s.ai92)));
+      const average92=ai92List.length?ai92List.reduce((a,s)=>a+Number(s.ai92),0)/ai92List.length:FUEL_REFERENCE.ai92.price;
+      const stale=state.fuelFetchedAt&&(Date.now()-state.fuelFetchedAt>CONFIG.FUEL_REFRESH_MS);
+      const rows=showing.map(s=>{
+        const ai95=stationFuelValue(s,['ai95','ai98']);
+        const diesel=stationFuelValue(s,['diesel','euroDiesel','rapidDiesel']);
+        const dieselLabel=s.dieselLabel||(diesel?.key==='euroDiesel'?'Евро-ДТ':diesel?.key==='rapidDiesel'?'ДТ / хурд':'ДТ');
+        return `<article class="fuel-station"><div class="fuel-station-top"><span class="fuel-brand-mark">Ш</span><div class="fuel-station-copy"><div class="fuel-station-name">${h(s.name||'Шунхлай ШТС')}</div><div class="fuel-station-location">${h(s.location||'Байршил заагаагүй')}</div></div><span class="fuel-provider-pill">${h(s.provider||'Шунхлай')}</span></div><div class="fuel-products">${fuelProduct('АИ-92',fuelMoney(s.ai92),!s.ai92)}${fuelProduct('АИ-95',ai95?fuelMoney(ai95.value):'Зарагддаггүй',!ai95)}${fuelProduct(dieselLabel,diesel?fuelMoney(diesel.value):'Зарагддаггүй',!diesel)}</div></article>`;
+      }).join('');
+      let stationContent='';
+      if(showing.length){
+        const more=filtered.length>showing.length?`<button class="fuel-load-more" data-act="show-all-fuel">Бүх ${filtered.length} станцыг харах</button>`:'';
+        stationContent=`<div class="fuel-station-list">${rows}</div>${more}`;
+      }else stationContent=`<div class="fuel-empty fuel-ready"><b>Үнэний самбар бэлэн байна.</b><br>Хайлтын үг эсвэл байршлын шүүлтүүрээ солиод дахин үзээрэй.</div>`;
+      const dataState=state.fuelIsFallback?'Суурь үнэ харагдаж байна · live жагсаалт автоматаар татагдана':'ШТС-ийн албан жагсаалтаас шинэчлэгдсэн';
+      root.innerHTML=`<div class="section-stack">
+        <section class="hero price-hero fuel-hero"><div><div class="hero-label">ШТС-ийн шатахууны үнэ</div><div class="hero-value mono">${all.length}<span class="cur">станц</span></div></div><div class="price-date">АИ-92 дундаж<br><b>${fuelMoney(average92)}</b><br><span class="tiny-live">${state.fuelFetchedAt?`Шалгасан ${dateLabel(state.fuelFetchedAt)}`:'Суурь үнийн самбар'}</span></div><div class="fuel-live-row"><span class="fuel-live-pill"><i></i>${stale?'Шинэчлэх шаардлагатай':'1 цаг тутам шинэчилнэ'}</span><span>литр тутам</span></div></section>
+        ${renderPriceTabs()}
+        <section class="card"><div class="tab-title-row"><h3 class="card-title">Шатахууны товч үнэ</h3><a class="fuel-source-badge" href="${CONFIG.FUEL_STATION_SOURCE}" target="_blank" rel="noopener">Албан эх сурвалж ↗</a></div><div class="fuel-reference-grid">${fuelReferenceCard('ai92',FUEL_REFERENCE.ai92)}${fuelReferenceCard('ai95',FUEL_REFERENCE.ai95,'ai95')}${fuelReferenceCard('diesel',FUEL_REFERENCE.diesel,'diesel')}</div><div class="fuel-data-state ${state.fuelIsFallback?'seed':''}"><i></i>${dataState}</div></section>
+      </div>`;
+    }
+
+    function showcaseForCategory(category){
+      if(category==='Сүү') return FOOD_SHOWCASE.filter(x=>x.group==='Сүү');
+      if(category==='Сода') return FOOD_SHOWCASE.filter(x=>x.group==='Сода');
+      if(category==='Бүгд') return FOOD_SHOWCASE.slice(0,12);
+      return [];
+    }
+    function standardItemsForCategory(category){
+      if(category==='Бүгд') return state.prices.filter(x=>x.category!=='Сүү, өндөг' && x.category!=='Сүү');
+      if(category==='Сүү') return state.prices.filter(x=>x.category==='Сүү, өндөг'||x.category==='Сүү');
+      return state.prices.filter(x=>x.category===category);
+    }
+    function displayPackLabel(v=''){ return h(String(v).replace(/\n/g,'<br>')).replace(/&lt;br&gt;/g,'<br>'); }
+    function productArtwork(p){
+      const pack=displayPackLabel(p.pack||'МОНГОЛ<br>СҮҮ');
+      if(p.art==='bottle') return `<div class="product-pack milk-bottle"><span>${pack}</span><em>шинэхэн</em></div>`;
+      if(p.art==='yogurt') return `<div class="product-pack yogurt-cup">${pack}</div>`;
+      if(p.art==='can') return `<div class="product-pack soda-can tone-${h(p.tone||'ice')}"><span>${pack}</span></div>`;
+      if(p.art==='soda') return `<div class="product-pack soda-bottle tone-${h(p.tone||'cola')}"><span>${pack}</span></div>`;
+      return `<div class="product-pack milk-carton"><b>${pack}</b><i></i></div>`;
+    }
+    function foodCard(p){
+      const fallback=productArtwork(p);
+      const source=p.sourceUrl?`<a class="food-card-source" href="${h(p.sourceUrl)}" target="_blank" rel="noopener">Эх: ${h(p.source||'дэлгүүр')}</a>`:`<span class="food-card-source">Жишиг үнэ</span>`;
+      const photo=p.image
+        ? `<div class="food-card-photo-wrap"><img class="food-card-photo" src="${h(p.image)}" alt="${h(p.name)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.hidden=false;"><div class="food-photo-fallback" hidden>${fallback}</div></div>`
+        : fallback;
+      return `<article class="food-card"><div class="food-card-visual tone-${h(p.tone||'sky')}"><span class="food-card-badge">${h(p.badge||p.unit||'Шинэ')}</span>${photo}</div><div class="food-card-body"><div class="food-card-name">${h(p.name)}</div><div class="food-card-unit">${h(p.unit||'')}</div><div class="food-card-price">${fmt(p.price)}₮</div>${source}</div></article>`;
+    }
+    function normalPriceRows(items){
+      return items.map(x=>{const diff=Number(x.price)-Number(x.previous);const hasPrev=Number.isFinite(Number(x.previous));const cls=!hasPrev?'same':diff>0?'up':diff<0?'down':'same';const lbl=x.seed?`Суурь үнэ · ${formatPriceDate(x.asOf||state.pricesDate)}`:!hasPrev?'Өмнөх дүн алга':diff>0?`▲ ${fmt(Math.abs(diff))}₮`:diff<0?`▼ ${fmt(Math.abs(diff))}₮`:'Өөрчлөлтгүй';return `<div class="price-row"><div class="price-main"><span class="price-icon">${priceIcon(x.name)}</span><div><div class="price-name">${h(x.name)}</div><div class="price-sub"><span>${h(x.category)}</span>${x.unit?`· ${h(x.unit)}`:''}</div></div></div><div class="price-value"><div class="price-amount">${fmt(x.price)}₮</div><div class="price-delta ${cls}">${lbl}</div></div></div>`;}).join('');
+    }
+    function renderFoodHero(){
+      const heroImage='https://www.suu.mn/curator/placeholders/product-9.png?fm=webp&s=ee90dd7e1496d55927e6759c51cdab0b';
+      return `<section class="food-hero"><div class="food-hero-copy"><div class="food-hero-eyebrow">ЖИНХЭНЭ БҮТЭЭГДЭХҮҮНИЙ КАТАЛОГ</div><div class="food-hero-title">Хүнс, сүү, ундаа</div><div class="food-hero-sub">Нийтэд нээлттэй дэлгүүрийн барааны хуудаснаас авсан бодит савлагаа, үнэ.</div><div class="food-hero-meta"><span class="food-live-chip"><i></i>AFTA · Good Price Market</span><span class="food-live-chip">${FOOD_SHOWCASE_UPDATED}</span></div></div><div class="food-hero-visual"><img class="food-hero-real-pack" src="${heroImage}" alt="Миний Монголын сүү" referrerpolicy="no-referrer" onerror="this.classList.add('is-failed')"><div class="food-hero-glass"></div><div class="food-splash"></div></div></section>`;
+    }
+    function renderFoodInsights(){
+      return `<section class="food-insights"><div class="food-insight"><span class="food-insight-icon">✓</span><span><b>${FOOD_SHOWCASE.length} бодит бараа</b><small>Сүү ба сода тусдаа ангилалтай</small></span></div><div class="food-insight"><span class="food-insight-icon">↗</span><span><b>Дэлгүүрийн үнэ оруулсан</b><small>Card бүр эх сурвалжийн линктэй</small></span></div><div class="food-insight"><span class="food-insight-icon">▣</span><span><b>Бодит савлагааны зураг</b><small>Хэрэв зураг хаагдвал энгийн загвар гарна</small></span></div></section>`;
+    }
+    function renderPrices(){
+      if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах')){ renderFuelPrices(); return; }
+      const root=$('#tab-price'), category=state.priceCategory||'Бүгд';
+      const gallery=showcaseForCategory(category);
+      const standard=standardItemsForCategory(category).filter(x=>Number.isFinite(Number(x.price)));
+      const categoryTitle=category==='Бүгд'?'Онцлох бараанууд':category==='Сүү'?'Сүү, сүүн бүтээгдэхүүн':category==='Сода'?'Сода, хийжүүлсэн ундаа':`${category} ангиллын бараа`;
+      const heroCount=category==='Бүгд'?FOOD_SHOWCASE.length:(gallery.length||standard.length||'—');
+      const dataState=state.pricesIsFallback ? 'ҮСХ-ийн суурь мэдээлэл болон дэлгүүрийн жишиг каталогоор харуулж байна.' : 'ҮСХ-ийн 7 хоногийн live хүснэгт болон дэлгүүрийн каталогоор шинэчлэгдсэн.';
+      root.innerHTML=`<div class="section-stack">
+        ${state.pricesError?`<div class="notice"><span>${h(state.pricesError)} Суурь үнийн самбар харагдсаар байна.</span><button data-act="refresh-prices">Дахин</button></div>`:''}
+        ${renderFoodHero()}
+        ${renderPriceTabs()}
+        ${(gallery.length||category==='Бүгд')?`${renderFoodInsights()}<section class="food-gallery-wrap"><div class="food-gallery-head"><div><h3>${categoryTitle}</h3><p>Бодит савлагаа · дэлгүүрийн үнэ · эх сурвалжийн линк</p></div><span class="food-gallery-count">${gallery.length} төрөл</span></div><div class="food-product-grid">${gallery.map(foodCard).join('')}</div></section>`:''}
+        ${standard.length?`<section class="card food-regular-card"><div class="tab-title-row"><h3 class="card-title">${gallery.length?'Үндсэн өргөн хэрэглээний үнэ':categoryTitle}</h3><span class="right-info">Дундаж үнэ, ₮</span></div><div class="price-list">${normalPriceRows(standard)}</div><div class="food-note"><b>Эх сурвалж:</b> Product card дээрх үнэ нь AFTA болон Good Price Market-ийн нийтэд нээлттэй тухайн барааны хуудаснаас авсан snapshot. Товч дээр дарж эх хуудас руу ороод үнийг дахин шалгаж болно.</div></section>`:''}
+        <section class="card"><div class="fuel-data-state ${state.pricesIsFallback?'seed':''}"><i></i>${dataState}</div><div class="price-source">Эх сурвалж: ҮСХ / 1212.mn · СҮҮ ХК · AFTA онлайн дэлгүүр<br>Жишиг үнэ нь CU болон бусад салбар, урамшуулал, савлагаанаас шалтгаалж өөр байж болно.</div></section>
+      </div>`;
+    }
+
+    function fuelNumber(v){ const n=Number(String(v??'').replace(/[^0-9]/g,'')); return n>=1000&&n<=9000?n:null; }
+    function compactFuelText(v=''){ return String(v).replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim(); }
+    function cleanFuelName(v=''){ return compactFuelText(v).replace(/^\d+\s*/,'').trim(); }
+    function mapFuelRow(cells){
+      const clean=cells.map(compactFuelText); if(clean.length<4) return null;
+      const stationNo=/^\d{1,3}$/.test(clean[0])?0:-1;
+      const offset=stationNo===0?1:0;
+      const name=cleanFuelName(clean[offset]); const location=clean[offset+1]||'';
+      if(!/^ШТС/i.test(name)) return null;
+      const products=clean.slice(offset+2).map(fuelNumber);
+      const positives=products.filter(Number.isFinite); if(!positives.length) return null;
+      return {name,location,ai92:products[0]||null,euro92:products[1]||null,ai95:products[2]||null,ai98:products[3]||null,diesel:products[4]||null,euroDiesel:products[5]||null,rapidDiesel:products[6]||null,provider:'Шунхлай'};
+    }
+    function parseFuelHtml(raw){
+      const doc=new DOMParser().parseFromString(raw,'text/html');
+      const table=[...doc.querySelectorAll('table')].find(t=>/АИ\s*-?\s*92/i.test(t.textContent||''));
+      if(!table) return [];
+      const rows=[...table.querySelectorAll('tr')].map(tr=>[...tr.querySelectorAll('th,td')].map(td=>td.textContent||''));
+      const rowsOut=rows.map(mapFuelRow).filter(Boolean);
+      return rowsOut.filter((x,i,a)=>a.findIndex(y=>y.name===x.name&&y.location===x.location)===i);
+    }
+    function parseFuelReaderText(raw){
+      const t=String(raw||'').replace(/\r/g,'');
+      const cut=t.search(/№\s*ШТС\s*БАЙРШИЛ/i); const body=cut>=0?t.slice(cut):t;
+      const chunks=body.split(/(?=^\s*\d{1,3}\s+ШТС)/m).filter(s=>/^\s*\d{1,3}\s+ШТС/m.test(s));
+      const placePattern=/\b(УБ\s*хот|Улаанбаатар|Төв аймаг|Булган аймаг|Хэнтий аймаг|Өвөрхангай аймаг|Баянхонгор аймаг|Архангай аймаг|Дундговь аймаг|Өмнөговь аймаг|Увс аймаг|Говь-Алтай аймаг|Баян-Өлгий аймаг|Ховд аймаг|Дорнод аймаг|Сүхбаатар аймаг|Говьсүмбэр аймаг|Дорноговь аймаг|Дархан-Уул аймаг|Сэлэнгэ аймаг|Орхон аймаг|Хөвсгөл аймаг|Завхан аймаг|Багануур)/i;
+      const out=[];
+      for(const chunk of chunks){
+        const first=chunk.match(/^\s*\d{1,3}\s+(ШТС[^\n]*)/m)?.[1]||'';
+        const priceMatch=[...chunk.matchAll(/\b[2-5]\d{3}\b/g)];
+        if(!first||!priceMatch.length) continue;
+        const placeMatch=chunk.match(placePattern); const firstPriceIndex=priceMatch[0].index??chunk.length;
+        let name=first,location='';
+        if(placeMatch&&placeMatch.index!==undefined){
+          const onFirst=first.search(placePattern);
+          if(onFirst>=0) name=first.slice(0,onFirst).trim();
+          else name=first.trim();
+          location=compactFuelText(chunk.slice(placeMatch.index,firstPriceIndex));
+        }else name=first.trim();
+        name=cleanFuelName(name); if(!/^ШТС/i.test(name)) continue;
+        const nums=priceMatch.map(m=>Number(m[0])); const later=nums.slice(1);
+        const ai95=later.find(n=>n>=3900&&n<4250)||null;
+        const diesel=[...later].reverse().find(n=>n>=4200&&n<4900)||null;
+        out.push({name,location,ai92:nums[0]||null,ai95,diesel,provider:'Шунхлай'});
+      }
+      return out.filter((x,i,a)=>a.findIndex(y=>y.name===x.name&&y.location===x.location)===i);
+    }
+    async function fetchFuelSource(){
+      const target=CONFIG.FUEL_STATION_SOURCE;
+      const attempts=[
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`,
+        `https://corsproxy.io/?${encodeURIComponent(target)}`,
+        `https://r.jina.ai/http://www.shunkhlai.mn/prices`
+      ];
+      let lastError;
+      for(const url of attempts){
+        try{ const ctrl=new AbortController(), timer=setTimeout(()=>ctrl.abort(),18000); const res=await fetch(url,{cache:'no-store',signal:ctrl.signal}); clearTimeout(timer); if(!res.ok) throw new Error(`HTTP ${res.status}`); const raw=await res.text(); const items=/r\.jina\.ai/i.test(url)?parseFuelReaderText(raw):parseFuelHtml(raw); if(items.length>=10) return items; throw new Error('Станцын хүснэгт танигдсангүй.'); }catch(err){ lastError=err; }
+      }
+      throw lastError||new Error('ШТС мэдээлэл татагдсангүй.');
+    }
+    async function loadFuelPrices(force=false){
+      if(state.fuelLoading)return;
+      if(!force&&!state.fuelIsFallback&&state.fuelStations.length&&Date.now()-state.fuelFetchedAt<CONFIG.FUEL_REFRESH_MS)return;
+      state.fuelLoading=true;state.fuelError='';syncHeader();renderFuelPrices();
+      try{ const items=await fetchFuelSource(); state.fuelStations=items;state.fuelFetchedAt=Date.now();state.fuelIsFallback=false;store.set('gerdans-live-fuel-stations',{items,fetchedAt:state.fuelFetchedAt}); }
+      catch(err){ state.fuelError=''; state.fuelIsFallback=true; if(!state.fuelStations.length) state.fuelStations=FALLBACK_FUEL_STATIONS.slice(); console.warn(err); }
+      state.fuelLoading=false;syncHeader();renderFuelPrices();
+    }
+
+
+    function getLoanProvider(){ return LOAN_PROVIDERS.find(x=>x.id===state.loanProviderId)||LOAN_PROVIDERS[0]; }
+    function getLoanProduct(){ const p=getLoanProvider(); return p.products.find(x=>x.id===state.loanProductId)||p.products[0]; }
+    function loanAmtText(n){ return `${fmt(n)}₮`; }
+    function loanTermText(p, term=state.loanTerm){ return `${term} ${p.termUnit==='day'?'хоног':'сар'}`; }
+    function loanRateText(p){ return p.rateLabel || (p.rateMin===p.rateMax ? `${p.rateMin}% / сар` : `${p.rateMin}%–${p.rateMax}% / сар`); }
+    function loanCalcRateText(p){ const r=Number(p.rateMax)||0; return `${r.toFixed(2)}% / сар`; }
+    function resetLoanForProduct(providerId, productId){ const prov=LOAN_PROVIDERS.find(x=>x.id===providerId)||LOAN_PROVIDERS[0]; const prod=prov.products.find(x=>x.id===productId)||prov.products[0]; state.loanProviderId=prov.id; state.loanProductId=prod.id; state.loanAmount=prod.amountMin; state.loanTerm=prod.termMin; state.loanRate=prod.rateDefault; state.loanView='calc'; }
+    function getLoanCalc(){ const p=getLoanProduct(); const amount=Math.max(p.amountMin,Math.min(p.amountMax,Number(state.loanAmount)||p.amountMin)); const term=Math.max(p.termMin,Math.min(p.termMax,Math.round(Number(state.loanTerm)||p.termMin))); const rate=Number(p.rateMax)||0; const fee=Math.round(amount*(Number(p.feeRate)||0)/100)+(Number(p.feeFixed)||0); let monthly=0,totalInterest=0,totalPayment=0,schedule=[]; if(p.termUnit==='day'){totalInterest=Math.round(amount*(rate/100)*(term/30));totalPayment=amount+totalInterest+fee;monthly=totalPayment;schedule=[{n:1,label:`${term} хоногийн дотор`,payment:totalPayment,interest:totalInterest,principal:amount,balance:0}];}else{const r=rate/100,n=term;monthly=r===0?amount/n:amount*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);let balance=amount;for(let i=1;i<=n;i++){let interest=r===0?0:balance*r;let principal=r===0?amount/n:monthly-interest;if(i===n){principal=balance;monthly=principal+interest;}balance=Math.max(0,balance-principal);schedule.push({n:i,label:`${i}-р сар`,payment:Math.round(monthly),interest:Math.round(interest),principal:Math.round(principal),balance:Math.round(balance)});}totalInterest=Math.round(schedule.reduce((a,x)=>a+x.interest,0));totalPayment=Math.round(amount+totalInterest+fee);monthly=Math.round(schedule[0]?.payment||0);} return {p,amount,term,rate,fee,monthly:Math.round(monthly),totalInterest,totalPayment,schedule}; }
+    function getEligibility(calc){ const income=Number(state.loanIncome)||0,debt=Math.max(0,Number(state.loanDebt)||0),age=Number(state.loanAge)||0,work=Math.max(0,Number(state.loanWorkMonths)||0); if(!income)return {cls:'warn',title:'Орлогоо оруулж урьдчилсан үнэлгээ харна уу',copy:'Энэ хэсэг нь зөвхөн сар бүрийн төлбөрийн даацын жишиг үнэлгээ. Аппын албан ёсны шийдвэр биш.',ratio:null};const paymentForRatio=calc.p.termUnit==='day'?calc.totalPayment:calc.monthly,ratio=((debt+paymentForRatio)/income)*100,ageIssue=age&&(age<18||age>70),workIssue=work&&work<3;if(ageIssue)return {cls:'bad',title:'Насны шалгуур хангахгүй байж магадгүй',copy:'Олон үйлчилгээ 18+ насны иргэн байхыг шаарддаг. Тухайн байгууллагын шалгуурыг давхар шалгана.',ratio};if(ratio<=45&&!workIssue)return {cls:'good',title:'Урьдчилсан байдлаар төлбөрийн даац боломжийн',copy:`Өр, орлогын харьцаа ${ratio.toFixed(1)}%. Гэхдээ зээлийн түүх, скоринг, баталгаажуулалт эцсийн шийдвэрт нөлөөлнө.`,ratio};if(ratio<=60)return {cls:'warn',title:'Нэмэлт шалгуур шаардагдаж болзошгүй',copy:`Өр, орлогын харьцаа ${ratio.toFixed(1)}%. ${workIssue?'Тогтмол орлогын хугацаа богино байна. ':''}Хүсэх дүн эсвэл хугацаагаа өөрчилж үзээрэй.`,ratio};return {cls:'bad',title:'Одоогийн төлбөрийн ачаалал өндөр байна',copy:`Өр, орлогын харьцаа ${ratio.toFixed(1)}%. Хүсэх дүнг бууруулах, хугацааг уртасгах эсвэл одоогийн өрөө багасгах нь илүү бодитой байж болно.`,ratio}; }
+    function loanLogoMarkup(p,extraClass=''){ const domain=p.logoDomain||''; const logoUrl=`https://www.google.com/s2/favicons?sz=128&domain_url=${encodeURIComponent('https://'+domain)}`; return `<span class="loan-logo ${h(extraClass)}"><img src="${logoUrl}" alt="${h(p.name)} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span class="loan-logo-fallback brand-${h(p.brand||'')}">${h(p.short)}</span></span>`; }
+    function providerCardMarkup(p){ const rates=p.products.filter(x=>x.rateMax>0).map(x=>x.rateMin).filter(Number.isFinite),minRate=rates.length?Math.min(...rates):0,pTypes=[...new Set(p.products.map(x=>x.kind))].slice(0,3).join(' · ');return `<button class="loan-provider" data-loan-provider="${p.id}"><div class="loan-provider-top">${loanLogoMarkup(p)}<div class="loan-provider-copy"><div class="loan-provider-name">${h(p.name)}</div><div class="loan-provider-desc">${h(p.desc)}</div></div><span class="loan-provider-arrow">›</span></div><div class="loan-provider-meta"><span class="loan-pill rate">${minRate?`Хүү ${minRate}%+ / сар`:'Нөхцөл сонголтоор'}</span><span class="loan-pill">${p.products.length} төрөл</span><span class="loan-pill">${h(pTypes)}</span></div></button>`; }
+    function renderLoan(){ const root=$('#tab-loan');if(!root)return;const provider=getLoanProvider(),product=getLoanProduct();if(state.loanView==='list'){const q=(state.loanSearch||'').trim().toLowerCase(),filter=state.loanFilter,matches=LOAN_PROVIDERS.filter(p=>{const corpus=[p.name,p.desc,...p.tags,...p.products.flatMap(x=>[x.name,x.kind,x.note])].join(' ').toLowerCase(),bySearch=!q||corpus.includes(q),byFilter=filter==='Бүгд'||p.tags.includes(filter)||p.products.some(x=>x.kind===filter||x.name.includes(filter));return bySearch&&byFilter;});root.innerHTML=`<div class="section-stack"><section class="hero"><div class="hero-label">Зээлийн сонголт</div><div class="hero-value mono">${LOAN_PROVIDERS.length}<span class="cur">үйлчилгээ</span></div><div class="loan-tiny" style="color:var(--muted);margin-top:9px">Хүү, хэмжээ, хугацааг харьцуулж, өөрийн төлбөрийн даацыг жишээгээр тооцоолоорой.</div></section><section class="loan-toolbar"><input id="loanSearch" class="loan-search" value="${h(state.loanSearch)}" placeholder="Апп, зээлийн төрөл, жишээ нь автомашин…"><div class="loan-filter-row">${LOAN_FILTERS.map(f=>`<button class="loan-filter ${filter===f?'active':''}" data-loan-filter="${h(f)}">${h(f)}</button>`).join('')}</div></section><section class="loan-provider-list">${matches.length?matches.map(providerCardMarkup).join(''):'<div class="empty-state">Тохирох үйлчилгээ олдсонгүй.</div>'}</section><p class="loan-disclaimer">Мэдээлэл: ${LOAN_DATA_UPDATED}. Энэ нь нийтэд ил тод гаргасан нөхцөлийн жишиг жагсаалт бөгөөд бүх апп/ББСБ-ыг бүрэн хамарсан албан ёсны бүртгэл биш. Хүү нь тухайн үйлчилгээний нийтэд ил тод гаргасан нөхцөлөөр харагдана; скорингтой бүтээгдэхүүний бодит гэрээний хүү өөр байж болно.</p></div>`;return;}if(state.loanView==='detail'){root.innerHTML=`<div class="section-stack"><div class="loan-detail-head"><button class="loan-back" data-act="loan-back-list">‹ Бүх үйлчилгээ</button><a class="loan-source" href="${h(provider.source)}" target="_blank" rel="noopener">Албан эх сурвалж ↗</a></div><section class="hero loan-summary"><div class="loan-brand-line">${loanLogoMarkup(provider,'loan-logo-lg')}<div><div class="hero-label">${h(provider.name)}</div><div class="hero-value" style="font-size:27px">${provider.products.length}<span class="cur">зээлийн төрөл</span></div></div></div><div class="loan-tiny" style="color:var(--muted);margin-top:12px">${h(provider.desc)}</div></section><div class="loan-warning"><span>ⓘ</span><span>Энэ загварт бүх зээлийн тооцоолуурын хугацаа 1–60 сар байна. Тухайн аппын бодитоор зөвшөөрөх дээд хугацаа өөр байж болох тул албан нөхцөлийг давхар шалгана.</span></div><section class="loan-product-list">${provider.products.map(p=>`<article class="loan-product"><div class="loan-product-top"><div><div class="loan-product-name">${h(p.name)}</div><div class="loan-product-sub">${h(p.note)}</div></div><span class="loan-product-rate">${loanRateText(p)}</span></div><div class="loan-product-grid"><div class="loan-stat"><span>Хэмжээ</span><b>${loanAmtText(p.amountMin)} – ${p.amountMax>=100000000?`${fmt(p.amountMax/1000000)} сая₮`:loanAmtText(p.amountMax)}</b></div><div class="loan-stat"><span>Тооцоолуурын хугацаа</span><b>${p.termMin}–${p.termMax} ${p.termUnit==='day'?'хоног':'сар'}</b></div><div class="loan-stat"><span>Төлөлт</span><b>${h(p.repayment)}</b></div></div><button class="loan-calc-open" data-loan-product="${p.id}" data-loan-provider-id="${provider.id}">Тооцоолж үзэх</button></article>`).join('')}</section></div>`;return;}const calc=getLoanCalc(),eligibility=getEligibility(calc),interestPct=calc.totalPayment?Math.max(0,Math.min(100,calc.totalInterest/calc.totalPayment*100)):0,productOptions=provider.products.map(p=>`<option value="${p.id}" ${p.id===product.id?'selected':''}>${h(p.name)}</option>`).join(''),amountStep=calc.p.amountMax<=5000000?50000:calc.p.amountMax<=50000000?100000:calc.p.amountMax<=100000000?500000:1000000,termStep=1;root.innerHTML=`<div class="section-stack"><div class="loan-detail-head"><button class="loan-back" data-act="loan-back-detail">‹ ${h(provider.name)}</button><a class="loan-source" href="${h(provider.source)}" target="_blank" rel="noopener">Нөхцөл ↗</a></div><section class="loan-calc-grid"><div class="card loan-config-card"><div class="loan-calc-title">Зээлийн нөхцөл</div><label class="field"><span>Зээлийн төрөл</span><select id="loanProductSelect" class="loan-select">${productOptions}</select></label><div class="loan-range-row"><label for="loanAmountRange">Зээлийн дүн</label><b id="loanAmountLabel">${loanAmtText(calc.amount)}</b></div><input id="loanAmountRange" class="loan-range" type="range" min="${product.amountMin}" max="${product.amountMax}" step="${amountStep}" value="${calc.amount}"><input id="loanAmountInput" class="loan-numeric" type="number" min="${product.amountMin}" max="${product.amountMax}" step="${amountStep}" value="${calc.amount}" inputmode="numeric"><div class="loan-range-row"><label for="loanTermRange">Тооцоолуурын хугацаа</label><b id="loanTermLabel">${loanTermText(product,calc.term)}</b></div><input id="loanTermRange" class="loan-range" type="range" min="${product.termMin}" max="${product.termMax}" step="${termStep}" value="${calc.term}"><div class="loan-tiny" style="margin-top:5px">Тооцоолох хугацаа: 1–60 сар</div><div class="loan-fixed-rate"><span>Аппын зарласан хүү</span><b id="loanRateLabel">${loanRateText(product)}</b></div><div class="loan-fixed-rate-note">Тооцоололд ${loanCalcRateText(product)}-ийн тогтмол хүү ашиглав${product.rateMin!==product.rateMax?' (нийтэлсэн дээд хүү)':''}.</div><div class="loan-tiny">${h(product.note)} ${product.feeRate||product.feeFixed?`Шимтгэл: ${product.feeRate?`${product.feeRate}%`:''}${product.feeRate&&product.feeFixed?' + ':''}${product.feeFixed?loanAmtText(product.feeFixed):''}.`:''}</div></div><div class="loan-result"><div class="loan-result-label">${product.termUnit==='day'?'Нийт төлөх дүн':'Сарын төлбөр'}</div><div class="loan-result-value" id="loanMonthlyPayment">${fmt(product.termUnit==='day'?calc.totalPayment:calc.monthly)}<span class="loan-cur">₮</span></div><div class="loan-pie-line"><div class="loan-pie" id="loanPie" style="background:conic-gradient(#98b9ff 0 ${Math.max(1,100-interestPct)}%,#f04b3d ${Math.max(1,100-interestPct)}% 100%)"><span class="loan-pie-center" id="loanPieCenter">${Math.round(interestPct)}%<br>хүү</span></div><div class="loan-pie-labels"><div><span><i class="loan-pie-dot principal"></i>Үндсэн</span><b id="loanPrincipal">${loanAmtText(calc.amount)}</b></div><div><span><i class="loan-pie-dot interest"></i>Хүү</span><b id="loanInterest">${loanAmtText(calc.totalInterest)}</b></div><div><span>Шимтгэл</span><b id="loanFee">${loanAmtText(calc.fee)}</b></div></div></div><div class="loan-result-total"><span>Нийт төлөх</span><b id="loanTotalPayment">${loanAmtText(calc.totalPayment)}</b></div></div></section><section class="card eligibility"><div class="tab-title-row"><h3 class="card-title">Зээл авах боломжийн урьдчилсан үнэлгээ</h3><span class="right-info">Шийдвэр биш</span></div><div class="eligibility-grid"><label class="field"><span>Сарын орлого</span><input id="loanIncomeInput" class="eligibility-input" type="number" min="0" value="${h(state.loanIncome)}" placeholder="0"></label><label class="field"><span>Сарын одоогийн төлбөр</span><input id="loanDebtInput" class="eligibility-input" type="number" min="0" value="${h(state.loanDebt)}" placeholder="0"></label><label class="field"><span>Нас <i>(заавал биш)</i></span><input id="loanAgeInput" class="eligibility-input" type="number" min="0" max="100" value="${h(state.loanAge)}" placeholder="ж: 25"></label><label class="field"><span>Тогтмол ажилласан сар <i>(заавал биш)</i></span><input id="loanWorkMonthsInput" class="eligibility-input" type="number" min="0" value="${h(state.loanWorkMonths)}" placeholder="ж: 6"></label></div><div id="eligibilityStatus" class="eligibility-status ${eligibility.cls}"><span id="eligibilityRatio" class="eligibility-ratio">${eligibility.ratio===null?'—':eligibility.ratio.toFixed(1)+'%'}</span><div id="eligibilityTitle" class="eligibility-title">${h(eligibility.title)}</div><div id="eligibilityCopy" class="eligibility-copy">${h(eligibility.copy)}</div></div></section><section class="card loan-schedule"><div class="tab-title-row"><h3 class="card-title">Эргэн төлөлтийн хуваарь</h3><span class="right-info">Эхний ${Math.min(calc.schedule.length,6)} ${product.termUnit==='day'?'мөр':'сар'}</span></div><table><thead><tr><th>Хугацаа</th><th>Төлбөр</th><th>Хүү</th><th>Үлдэгдэл</th></tr></thead><tbody id="loanSchedule">${calc.schedule.slice(0,6).map(x=>`<tr><td>${h(x.label)}</td><td>${loanAmtText(x.payment)}</td><td>${loanAmtText(x.interest)}</td><td>${loanAmtText(x.balance)}</td></tr>`).join('')}</tbody></table>${calc.schedule.length>6?`<div class="loan-schedule-more">Нийт ${calc.schedule.length} сарын хуваарьт суурилсан тооцоо</div>`:''}</section><div class="loan-warning"><span>ⓘ</span><span>Энэ нь жишиг тооцоолол. Бодит нийт төлбөрт гэрээний шимтгэл, нэмэгдүүлсэн хүү, даатгал, урьдчилгаа, зээлийн оноо болон бусад нөхцөл нөлөөлж болно.</span></div></div>`; }
+    function updateLoanCalculatorOnly(){const root=$('#tab-loan');if(!root||state.loanView!=='calc')return;const calc=getLoanCalc(),p=calc.p,eligible=getEligibility(calc),interestPct=calc.totalPayment?Math.max(0,Math.min(100,calc.totalInterest/calc.totalPayment*100)):0,set=(id,val)=>{const e=$('#'+id,root);if(e)e.textContent=val;};set('loanAmountLabel',loanAmtText(calc.amount));set('loanTermLabel',loanTermText(p,calc.term));set('loanRateLabel',loanRateText(p));set('loanMonthlyPayment',loanAmtText(p.termUnit==='day'?calc.totalPayment:calc.monthly));set('loanPrincipal',loanAmtText(calc.amount));set('loanInterest',loanAmtText(calc.totalInterest));set('loanFee',loanAmtText(calc.fee));set('loanTotalPayment',loanAmtText(calc.totalPayment));const pie=$('#loanPie',root);if(pie)pie.style.background=`conic-gradient(#98b9ff 0 ${Math.max(1,100-interestPct)}%,#f04b3d ${Math.max(1,100-interestPct)}% 100%)`;set('loanPieCenter',Math.round(interestPct)+'% хүү');const stat=$('#eligibilityStatus',root);if(stat){stat.className='eligibility-status '+eligible.cls;set('eligibilityRatio',eligible.ratio===null?'—':eligible.ratio.toFixed(1)+'%');set('eligibilityTitle',eligible.title);set('eligibilityCopy',eligible.copy);}const body=$('#loanSchedule',root);if(body)body.innerHTML=calc.schedule.slice(0,6).map(x=>`<tr><td>${h(x.label)}</td><td>${loanAmtText(x.payment)}</td><td>${loanAmtText(x.interest)}</td><td>${loanAmtText(x.balance)}</td></tr>`).join('');}
+
+    function render(){
+      // Зөвхөн нээгдсэн хэсгийг render хийнэ. Ингэснээр өөр tab-ын live data
+      // асуудал гарсан ч “Төлөлт” цэс хоосон болохгүй.
+      $$('.tab').forEach(el=>el.classList.toggle('active',el.id==='tab-'+state.tab));
+      $$('.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.tab));
+      syncHeader();
+      try{
+        if(state.tab==='dans') renderFinance();
+        else if(state.tab==='hansh') renderRates();
+        else if(state.tab==='weather') renderWeather();
+        else if(state.tab==='price') renderPrices();
+        else if(state.tab==='loan') renderLoan();
+        else if(state.tab==='debts') renderDebtTracker();
+      }catch(err){
+        console.error('Render error:',err);
+        const root=$('#tab-'+state.tab);
+        if(root) root.innerHTML=`<section class="card" style="margin-top:8px;text-align:center;padding:28px 18px"><div style="font-size:30px;margin-bottom:9px">⚠</div><b style="display:block;font-size:15px">Энэ хэсгийг ачаалж чадсангүй</b><p style="margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.55">Хуудсыг нэг удаа дахин нээгээд үзээрэй. Өмнөх бүртгэлүүд browser дээр хадгалагдсан хэвээр байна.</p><button class="debt-primary" data-act="retry-current-tab" style="margin-top:14px">Дахин ачаалах</button></section>`;
+      }
+    }
+
+    function defaultDayFor(ms){
+      if(ms===monthOf(new Date())) return todayStr();
+      const list=state.tx.filter(t=>t.date?.startsWith(ms)).map(t=>t.date).sort(); return list.length?list[list.length-1]:ms+'-01';
+    }
+    function openMonth(ms){ state.selMonth=ms;state.selDate=defaultDayFor(ms);state.confirmId=null;state.view='month';render(); }
+    function addTransaction(){
+      const amount=parseFloat($('#amountInput')?.value);if(!amount||amount<=0)return;
+      const category=$('#categoryInput').value, desc=$('#descInput').value.trim();
+      state.tx.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,7),type:state.type,amount,category,desc,date:state.selDate});saveTx();render();
+      setTimeout(()=>$('#amountInput')?.focus(),0);
+    }
+    function getFreshness(){ return {rates:Date.now()-state.ratesFetchedAt,weather:Date.now()-state.weatherFetchedAt,prices:Date.now()-state.pricesFetchedAt,fuel:Date.now()-state.fuelFetchedAt}; }
+
+    async function loadRates(force=false){
+      if(state.ratesLoading)return;
+      if(!force&&state.rates&&Date.now()-state.ratesFetchedAt<CONFIG.RATES_REFRESH_MS)return;
+      state.ratesLoading=true;state.ratesError='';syncHeader();renderRates();
+      try{
+        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+        const res=await fetch(CONFIG.RATES_API,{cache:'no-store',signal:controller.signal});clearTimeout(timer);
+        if(!res.ok)throw new Error('Ханшийн сервер хариу өгсөнгүй.');
+        const data=await res.json();if(!data?.rates?.MNT)throw new Error('Ханшийн мэдээлэл буруу байна.');
+        state.rates=data.rates;state.ratesFetchedAt=Date.now();state.ratesUpdatedAt=data.time_last_update_unix?data.time_last_update_unix*1000:Date.now();
+        store.set('gerdans-live-rates',{rates:state.rates,fetchedAt:state.ratesFetchedAt,updatedAt:state.ratesUpdatedAt});
+      }catch(err){state.ratesError='Ханшийн live мэдээлэл татагдсангүй.';console.warn(err);}
+      state.ratesLoading=false;syncHeader();renderRates();
+    }
+    async function loadWeather(force=false){
+      if(state.weatherLoading)return;
+      if(!force&&state.weather&&Date.now()-state.weatherFetchedAt<CONFIG.WEATHER_REFRESH_MS)return;
+      const c=CITIES[state.cityIdx];state.weatherLoading=true;state.weatherError='';syncHeader();renderWeather();
+      try{
+        const q=new URLSearchParams({latitude:c.lat,longitude:c.lon,current:'temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m',daily:'weather_code,temperature_2m_max,temperature_2m_min',timezone:'auto',forecast_days:'7',wind_speed_unit:'kmh'});
+        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+        const res=await fetch(`${CONFIG.WEATHER_API}?${q}`,{cache:'no-store',signal:controller.signal});clearTimeout(timer);
+        if(!res.ok)throw new Error('Цаг агаарын сервер хариу өгсөнгүй.');
+        const data=await res.json();if(!data?.current||!data?.daily)throw new Error('Цаг агаарын мэдээлэл буруу байна.');
+        state.weather=data;state.weatherFetchedAt=Date.now();store.set('gerdans-live-weather',{data,cityIdx:state.cityIdx,fetchedAt:state.weatherFetchedAt});
+      }catch(err){state.weatherError='Цаг агаарын live мэдээлэл татагдсангүй.';console.warn(err);}
+      state.weatherLoading=false;syncHeader();renderWeather();
+    }
+
+
+    async function loadProductPrices(force=false){
+      if(state.pricesLoading)return;
+      if(!force&&state.prices.length&&Date.now()-state.pricesFetchedAt<CONFIG.PRICE_REFRESH_MS)return;
+      state.pricesLoading=true;state.pricesError='';syncHeader();renderPrices();
+      try{
+        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),18000);
+        const metaRes=await fetch(CONFIG.PRICE_META_API,{cache:'no-store',signal:controller.signal});
+        if(!metaRes.ok)throw new Error('Үнийн сангийн мета мэдээлэл ирсэнгүй.');
+        const meta=await metaRes.json();
+        const vars=meta?.variables||[];
+        const productVar=vars.find(v=>String(v.text||v.code).includes('Бүтээгдэхүүн'))||vars[0];
+        const timeVar=vars.find(v=>String(v.text||v.code).includes('Хугацаа'))||vars[1];
+        if(!productVar||!timeVar||!Array.isArray(productVar.values)||!Array.isArray(timeVar.values)||!timeVar.values.length)throw new Error('Үнийн сангийн бүтэц танигдсангүй.');
+        const latest=timeVar.values[0], previous=timeVar.values[1]||timeVar.values[0];
+        const query={query:[
+          {code:productVar.code,selection:{filter:'all',values:['*']}},
+          {code:timeVar.code,selection:{filter:'item',values:[latest,previous]}}
+        ],response:{format:'json-stat2'}};
+        const dataRes=await fetch(CONFIG.PRICE_META_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(query),cache:'no-store',signal:controller.signal});
+        clearTimeout(timer);
+        if(!dataRes.ok)throw new Error('Үнийн мэдээлэл ирсэнгүй.');
+        const data=await dataRes.json();
+        const ids=data.id||[productVar.code,timeVar.code];
+        const pPos=ids.indexOf(productVar.code), tPos=ids.indexOf(timeVar.code);
+        if(pPos<0||tPos<0)throw new Error('Үнийн мэдээллийн багана танигдсангүй.');
+        const pIndex=pxIndexMap(data.dimension,productVar.code), tIndex=pxIndexMap(data.dimension,timeVar.code);
+        const latestIndex=Number(tIndex.get(latest)), previousIndex=Number(tIndex.get(previous));
+        const labels=productVar.valueTexts||productVar.values;
+        const items=productVar.values.map((code,i)=>{
+          const positions=new Array(ids.length).fill(0);positions[pPos]=Number(pIndex.get(code));positions[tPos]=latestIndex;
+          const current=statValueAt(data,ids,positions);positions[tPos]=previousIndex;
+          const previousValue=statValueAt(data,ids,positions);const name=labels[i]||code;
+          const lastComma=name.lastIndexOf(',');const unit=lastComma>-1?name.slice(lastComma+1).trim():'';
+          return {name,unit,category:priceCategory(name),price:Number(current),previous:Number(previousValue)};
+        }).filter(x=>Number.isFinite(x.price));
+        if(!items.length)throw new Error('Үнийн мэдээлэл хоосон байна.');
+        state.prices=items;state.pricesDate=latest;state.pricesPreviousDate=previous;state.pricesFetchedAt=Date.now();state.pricesIsFallback=false;
+        store.set('gerdans-product-prices',{items,latestDate:latest,previousDate:previous,fetchedAt:state.pricesFetchedAt});
+      }catch(err){state.pricesError='Барааны үнийн live мэдээлэл татагдсангүй.';console.warn(err);}
+      state.pricesLoading=false;syncHeader();renderPrices();
+    }
+
+    document.addEventListener('click',e=>{
+      const tab=e.target.closest('[data-tab]');if(tab){state.tab=tab.dataset.tab;render();if(state.tab==='hansh')loadRates();if(state.tab==='weather')loadWeather();if(state.tab==='price'){ if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах'))loadFuelPrices(); else loadProductPrices(); }return;}
+      const action=e.target.closest('[data-act]')?.dataset.act;
+      if(action==='loan-back-list'){state.loanView='list';renderLoan();return;}
+      if(action==='loan-back-detail'){state.loanView='detail';renderLoan();return;}
+      if(action==='prev-year'){state.selYear--;render();return;} if(action==='next-year'){state.selYear++;render();return;}
+      if(action==='write-today'){const d=new Date();state.selYear=d.getFullYear();state.selMonth=monthOf(d);state.selDate=todayStr();state.view='month';render();return;}
+      if(action==='back-menu'){state.view='menu';state.confirmId=null;render();return;} if(action==='go-today'){state.selDate=todayStr();state.confirmId=null;render();return;}
+      if(action==='type-expense'){state.type='expense';state.category=CATS.expense[0];render();return;} if(action==='type-income'){state.type='income';state.category=CATS.income[0];render();return;}
+      if(action==='swap-cur'){[state.cvFrom,state.cvTo]=[state.cvTo,state.cvFrom];renderRates();return;}
+      if(action==='refresh-rates'){loadRates(true);return;} if(action==='refresh-weather'){loadWeather(true);return;} if(action==='refresh-prices'){loadProductPrices(true);return;} if(action==='refresh-fuel'){loadFuelPrices(true);return;} if(action==='show-all-fuel'){state.fuelShowAll=true;renderFuelPrices();return;}
+      if(action==='cancel-delete'){state.confirmId=null;render();return;}
+      const month=e.target.closest('[data-month]');if(month){openMonth(month.dataset.month);return;} const day=e.target.closest('[data-day]');if(day){state.selDate=day.dataset.day;state.confirmId=null;render();return;}
+      const loanFilter=e.target.closest('[data-loan-filter]');if(loanFilter){state.loanFilter=loanFilter.dataset.loanFilter;renderLoan();return;}
+      const loanProvider=e.target.closest('[data-loan-provider]');if(loanProvider){state.loanProviderId=loanProvider.dataset.loanProvider;state.loanProductId=getLoanProvider().products[0].id;state.loanView='detail';renderLoan();return;}
+      const loanProduct=e.target.closest('[data-loan-product]');if(loanProduct){resetLoanForProduct(loanProduct.dataset.loanProviderId||state.loanProviderId,loanProduct.dataset.loanProduct);renderLoan();return;}
+      const city=e.target.closest('[data-city]');if(city){state.cityIdx=Number(city.dataset.city);state.weather=null;state.weatherFetchedAt=0;state.weatherError='';render();loadWeather(true);return;} const pricecat=e.target.closest('[data-pricecat]');if(pricecat){state.priceCategory=pricecat.dataset.pricecat;state.fuelShowAll=false;render();if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах'))loadFuelPrices();else loadProductPrices();return;} const fuelArea=e.target.closest('[data-fuel-area]');if(fuelArea){state.fuelArea=fuelArea.dataset.fuelArea;state.fuelShowAll=false;renderFuelPrices();return;}
+      const confirm=e.target.closest('[data-confirm]');if(confirm){state.confirmId=confirm.dataset.confirm;render();return;} const del=e.target.closest('[data-delete]');if(del){state.tx=state.tx.filter(t=>t.id!==del.dataset.delete);saveTx();state.confirmId=null;render();return;}
+    });
+    document.addEventListener('input',e=>{
+      if(e.target.id==='amountInput'){const btn=$('#addBtn');if(btn)btn.disabled=!(parseFloat(e.target.value)>0);}
+      if(e.target.id==='cvAmount'){state.cvAmount=e.target.value;updateConverterOnly();}
+      if(e.target.id==='loanSearch'){state.loanSearch=e.target.value;renderLoan();setTimeout(()=>$('#loanSearch')?.focus(),0);}
+      if(e.target.id==='loanAmountRange'||e.target.id==='loanAmountInput'){state.loanAmount=e.target.value;const r=$('#loanAmountRange');const i=$('#loanAmountInput');if(e.target.id==='loanAmountRange'&&i)i.value=e.target.value;if(e.target.id==='loanAmountInput'&&r)r.value=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='loanTermRange'){state.loanTerm=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='loanIncomeInput'){state.loanIncome=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='loanDebtInput'){state.loanDebt=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='loanAgeInput'){state.loanAge=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='loanWorkMonthsInput'){state.loanWorkMonths=e.target.value;updateLoanCalculatorOnly();}
+      if(e.target.id==='fuelSearch'){state.fuelSearch=e.target.value;state.fuelShowAll=false;renderFuelPrices();setTimeout(()=>$('#fuelSearch')?.focus(),0);}
+      if(e.target.id==='monthNote'){const key=state.selMonth;state.notes[key]=e.target.value;saveNotes();const n=$('#noteStatus');if(n){n.textContent='Хадгалж байна…';n.className='note-status';clearTimeout(window.__noteTimer);window.__noteTimer=setTimeout(()=>{n.textContent='Хадгалагдсан ✓';n.className='note-status saved';},450);}}
+    });
+    document.addEventListener('change',e=>{
+      if(e.target.id==='categoryInput'){state.category=e.target.value;}
+      if(e.target.id==='cvFrom'){state.cvFrom=e.target.value;renderRates();}
+      if(e.target.id==='cvTo'){state.cvTo=e.target.value;renderRates();}
+      if(e.target.id==='loanProductSelect'){resetLoanForProduct(state.loanProviderId,e.target.value);renderLoan();}
+    });
+    document.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.target.id==='amountInput'||e.target.id==='descInput')){e.preventDefault();addTransaction();}});
+    document.addEventListener('click',e=>{if(e.target.id==='addBtn')addTransaction();});
+
+    setInterval(()=>{if(document.visibilityState!=='visible')return;if(state.tab==='hansh')loadRates();if(state.tab==='weather')loadWeather();if(state.tab==='price'){if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах'))loadFuelPrices();else loadProductPrices();}},60*1000);
+    window.addEventListener('focus',()=>{const f=getFreshness();if(state.tab==='hansh'&&f.rates>CONFIG.RATES_REFRESH_MS)loadRates();if(state.tab==='weather'&&f.weather>CONFIG.WEATHER_REFRESH_MS)loadWeather();if(state.tab==='price'){if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах')&&f.fuel>CONFIG.FUEL_REFRESH_MS)loadFuelPrices();else if(!String(state.priceCategory||'').trim().toLowerCase().includes('шатах')&&f.prices>CONFIG.PRICE_REFRESH_MS)loadProductPrices();}});
+    document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){const f=getFreshness();if(state.tab==='hansh'&&f.rates>CONFIG.RATES_REFRESH_MS)loadRates();if(state.tab==='weather'&&f.weather>CONFIG.WEATHER_REFRESH_MS)loadWeather();if(state.tab==='price'){if(String(state.priceCategory||'').trim().toLowerCase().includes('шатах')&&f.fuel>CONFIG.FUEL_REFRESH_MS)loadFuelPrices();else if(!String(state.priceCategory||'').trim().toLowerCase().includes('шатах')&&f.prices>CONFIG.PRICE_REFRESH_MS)loadProductPrices();}}});
+
+
+
+    /* ==================== Compact fuel-only price page ==================== */
+    function renderFuelCompact(){
+      const root=$('#tab-price');
+      const all=state.fuelStations&&state.fuelStations.length?state.fuelStations:FALLBACK_FUEL_STATIONS;
+      const avg=(key,fallback)=>{const arr=all.map(x=>Number(x[key])).filter(Number.isFinite);return arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:fallback;};
+      const ref92=Math.round(avg('ai92',FUEL_REFERENCE.ai92.price));
+      const ref95=Math.round(avg('ai95',FUEL_REFERENCE.ai95.price));
+      const refDiesel=Math.round(avg('diesel',FUEL_REFERENCE.diesel.price));
+      const status=state.fuelLoading?'Шинэчилж байна…':state.fuelError?'Сүүлийн хадгалсан үнэ':'1 цаг тутам шинэчилнэ';
+      root.innerHTML=`<div class="section-stack">
+        <section class="hero price-hero fuel-hero"><div><div class="hero-label">Шатахууны үнийн самбар</div><div class="hero-value mono">${all.length}<span class="cur">станц</span></div></div><div class="price-date">Шалгасан<br><b>${state.fuelFetchedAt?dateLabel(state.fuelFetchedAt):'Суурь үнэ'}</b><br><span class="tiny-live">литр тутам</span></div><div class="fuel-live-row"><span class="fuel-live-pill"><i></i>${status}</span></div></section>
+        <section class="card"><div class="tab-title-row"><h3 class="card-title">Товч үнэ</h3><button class="icon-btn" data-act="refresh-fuel" aria-label="Шатахууны үнэ шинэчлэх">↻</button></div><div class="fuel-reference-grid"><div class="fuel-reference"><small>АИ-92</small><b>${fmt(ref92)}₮</b><span>дундаж үнэ</span></div><div class="fuel-reference ai95"><small>АИ-95</small><b>${fmt(ref95)}₮</b><span>дундаж үнэ</span></div><div class="fuel-reference diesel"><small>ДТ / Евро-ДТ</small><b>${fmt(refDiesel)}₮</b><span>дундаж үнэ</span></div></div><div class="fuel-data-state ${state.fuelIsFallback?'seed':''}"><i></i>${state.fuelIsFallback?'Суурь үнийн самбар · интернеттэй үед автоматаар шинэчилнэ':'ШТС-ийн сүүлийн хадгалсан мэдээллээр тооцсон дундаж үнэ'}</div></section>
+        <div class="debt-note"><b>Тайлбар:</b> Хүнсний каталогийг энэ хувилбараас хассан. Энд зөвхөн шатахууны товч үнийн самбар гарна.</div>
+      </div>`;
+    }
+    renderPrices = function(){ renderFuelCompact(); };
+
+    /* ==================== Advanced debt repayment tracker ==================== */
+    const DEBT_STORE_KEY='gerdans-debt-tracker-v1';
+    const DEBT_MONTH_NAMES=['1-р сар','2-р сар','3-р сар','4-р сар','5-р сар','6-р сар','7-р сар','8-р сар','9-р сар','10-р сар','11-р сар','12-р сар'];
+    const debtMonthKey=(start,index)=>{const m=String(start||monthOf(new Date())).match(/^(\d{4})-(\d{2})$/);const y=m?Number(m[1]):new Date().getFullYear(),mo=m?Number(m[2])-1:new Date().getMonth();const d=new Date(y,mo+index,1);return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;};
+    const debtMonthLabel=(key)=>{const [y,m]=String(key||'').split('-').map(Number);return y&&m?`${y} оны ${m}-р сар`:key;};
+    const debtSelectedKey=()=>`${state.debtYear}-${pad(state.debtMonth)}`;
+    const num=(v)=>Math.max(0,Number(String(v??'').replace(/,/g,'').replace(/[^0-9.]/g,''))||0);
+    function normalizeDebt(d){
+      const total=num(d?.total),monthly=num(d?.monthly);
+      const legacyBank=String(d?.lender||'').trim();
+      return {...d,total,monthly,bankName:String(d?.bankName||legacyBank||'').trim(),accountName:String(d?.accountName||'').trim(),accountNo:String(d?.accountNo||'').trim(),paid:Array.isArray(d?.paid)?d.paid.map(Boolean):[],startMonth:/^\d{4}-\d{2}$/.test(String(d?.startMonth||''))?d.startMonth:monthOf(new Date())};
+    }
+    function debtMonths(d){const n=normalizeDebt(d);return n.monthly>0?Math.max(1,Math.ceil(n.total/n.monthly)):0;}
+    function debtPaymentAt(d,index){const n=normalizeDebt(d);const before=n.monthly*index;return Math.max(0,Math.min(n.monthly,n.total-before));}
+    function debtPaidTotal(d){const n=normalizeDebt(d);return Array.from({length:debtMonths(n)},(_,i)=>n.paid[i]?debtPaymentAt(n,i):0).reduce((a,b)=>a+b,0);}
+    function debtRemaining(d){const n=normalizeDebt(d);return Math.max(0,n.total-debtPaidTotal(n));}
+    function debtProgress(d){const n=normalizeDebt(d);return n.total>0?Math.min(100,Math.round(debtPaidTotal(n)/n.total*100)):0;}
+    function debtIndexForMonth(d,key){const n=normalizeDebt(d),count=debtMonths(n);for(let i=0;i<count;i++)if(debtMonthKey(n.startMonth,i)===key)return i;return -1;}
+    function debtMonthInfo(d,key=debtSelectedKey()){
+      const n=normalizeDebt(d),index=debtIndexForMonth(n,key);
+      if(index<0)return {index:-1,amount:0,paid:false,applicable:false};
+      return {index,amount:debtPaymentAt(n,index),paid:!!n.paid[index],applicable:true};
+    }
+    function debtCountForMonth(key){return (state.debts||[]).reduce((count,d)=>count+(debtIndexForMonth(d,key)>=0?1:0),0);}
+    function debtDueForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable?info.amount:0);},0);}
+    function debtPaidForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable&&info.paid?info.amount:0);},0);}
+    function saveDebts(){state.debts=(Array.isArray(state.debts)?state.debts:[]).map(normalizeDebt);store.set(DEBT_STORE_KEY,state.debts);}
+    function allDebtTotal(){return (state.debts||[]).reduce((s,d)=>s+normalizeDebt(d).total,0);}
+    function allDebtRemaining(){return (state.debts||[]).reduce((s,d)=>s+debtRemaining(d),0);}
+    function debtScheduleRows(d){
+      const n=normalizeDebt(d),totalMonths=debtMonths(n),selected=debtSelectedKey();
+      return Array.from({length:totalMonths},(_,i)=>{
+        const key=debtMonthKey(n.startMonth,i),paid=!!n.paid[i],amount=debtPaymentAt(n,i),isSelected=key===selected;
+        const label=debtMonthLabel(key),stateLabel=paid?'Төлсөн':isSelected?'Сонгосон':'Төлөөгүй';
+        return `<button type="button" class="debt-schedule-row ${paid?'paid':''} ${isSelected?'selected':''}" data-debt-month="${key}"><span class="debt-schedule-date">${label}</span><b class="debt-schedule-amount">${fmt(amount)}₮</b><span class="debt-schedule-state">${stateLabel}</span></button>`;
+      }).join('');
+    }
+    function debtMonthCalendar(){
+      const selected=debtSelectedKey(),now=monthOf(new Date());
+      const tabs=Array.from({length:12},(_,i)=>{
+        const key=`${state.debtYear}-${pad(i+1)}`,due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),isDone=count>0&&paid>=due&&due>0;
+        const label=count?`${count} зээл`:'Төлөлт алга';
+        return `<button class="debt-month-tab ${key===selected?'active':''} ${key===now?'current':''} ${isDone?'done':''}" data-debt-month="${key}" aria-label="${debtMonthLabel(key)}"><small>${DEBT_MONTH_NAMES[i]}</small><b>${count?fmt(due)+'₮':'—'}</b><span>${isDone?'Бүгд төлсөн':label}</span></button>`;
+      }).join('');
+      return `<section class="card debt-calendar"><div class="debt-calendar-head"><div><span class="debt-calendar-eyebrow">ТӨЛӨЛТИЙН КАЛЕНДАР</span><h3 class="debt-calendar-title">${state.debtYear} он</h3></div><div class="debt-year-tools"><button class="debt-year-button" data-act="debt-prev-year" aria-label="Өмнөх жил">‹</button><button class="debt-current-button" data-act="debt-go-current">Энэ сар</button><button class="debt-year-button" data-act="debt-next-year" aria-label="Дараагийн жил">›</button></div></div><div class="debt-month-grid">${tabs}</div><div class="debt-calendar-help"><b>Сар сонго:</b> тухайн сар дээр дараад, тэр сарын төлөлтийг тус бүрээр нь бүртгэнэ.</div></section>`;
+    }
+    function debtMonthSummary(key){
+      const due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),left=Math.max(0,due-paid);
+      return `<section class="debt-month-summary"><div class="debt-month-summary-top"><div><div class="debt-month-summary-label">СОНГОСОН ТӨЛӨЛТИЙН САР</div><div class="debt-month-summary-title">${debtMonthLabel(key)}</div></div><span class="debt-month-summary-count">${count} зээл</span></div><div class="debt-month-stats"><div class="debt-month-stat"><span>Төлөх дүн</span><b>${fmt(due)}₮</b></div><div class="debt-month-stat paid"><span>Төлөгдсөн</span><b>${fmt(paid)}₮</b></div></div>${count?`<div style="margin-top:10px;font-size:10.5px;color:#7082a1">Үлдсэн сарын төлбөр: <b style="color:#254d88;font-family:var(--mono)">${fmt(left)}₮</b></div>`:`<div style="margin-top:10px;font-size:10.5px;color:#7082a1">Энэ сард төлөх хуваарьтай зээл алга.</div>`}</section>`;
+    }
+    function debtCard(d,key=debtSelectedKey()){
+      const n=normalizeDebt(d),months=debtMonths(n),remaining=debtRemaining(n),progress=debtProgress(n),info=debtMonthInfo(n,key);
+      const label=(n.name||'Зээл').trim(),bank=(n.bankName||n.lender||'Банк заагаагүй').trim(),accountName=(n.accountName||'Дансны нэр оруулаагүй').trim();
+      const initials=(label[0]||'₮').toUpperCase();
+      const paymentPanel=!info.applicable
+        ? `<div class="debt-selected-payment"><div class="debt-payment-not-due"><b>${debtMonthLabel(key)}</b> дээр энэ зээлийн төлөлт байхгүй. Зээлийн эхлэх сар: ${debtMonthLabel(n.startMonth)}.</div></div>`
+        : `<div class="debt-selected-payment"><div class="debt-selected-payment-head"><span>${debtMonthLabel(key)} · ${info.paid?'төлөлт бүртгэгдсэн':'төлөлт хүлээгдэж байна'}</span><b>${fmt(info.amount)}₮</b></div><button class="debt-payment-toggle ${info.paid?'paid':''}" data-debt-toggle="${h(n.id)}" data-debt-index="${info.index}" aria-label="${info.paid?'Төлөлтийг буцаах':'Төлсөн гэж бүртгэх'}"><span class="left"><b>${info.paid?'Төлсөн гэж бүртгэгдсэн':'Энэ сарын төлөлт'}</b><span>${info.paid?'Дахин дарвал төлөлт буцна':'Дарж төлсөн гэж бүртгэнэ'}</span></span><span class="right">${info.paid?'✓ Төлсөн':'Төлсөн гэж тэмдэглэх'}</span></button></div>`;
+      return `<article class="debt-card"><div class="debt-card-top"><div class="debt-title-row"><span class="debt-avatar">${h(initials)}</span><div class="debt-title-copy"><div class="debt-name">${h(label)}</div><div class="debt-lender">${months} сарын хуваарь · ${progress}% төлөгдсөн</div></div></div><button class="debt-delete" data-debt-delete="${h(n.id)}" title="Зээл устгах">⌫</button></div><div class="debt-bank-account"><span class="debt-bank-chip">🏦 ${h(bank)}</span><span class="debt-account-chip">▣ ${h(accountName)}</span></div>${n.accountNo?`<div class="debt-account-no">Данс: <b>${h(n.accountNo)}</b></div>`:''}<div class="debt-card-numbers"><div class="debt-number"><span>Үлдэгдэл</span><b>${fmt(remaining)}₮</b></div><div class="debt-number"><span>Сарын төлөлт</span><b class="small">${fmt(n.monthly)}₮</b></div></div><div class="debt-progress-wrap"><div class="debt-progress-row"><span>${progress}% төлөгдсөн</span><b>${fmt(debtPaidTotal(n))}₮ / ${fmt(n.total)}₮</b></div><div class="debt-progress"><i style="width:${progress}%"></i></div></div>${paymentPanel}<details class="debt-schedule"><summary>Сар бүрийн хуваарь <span>${months} сар</span></summary><div class="debt-schedule-list">${debtScheduleRows(n)}</div></details></article>`;
+    }
+    function renderDebtTracker(){
+      const root=$('#tab-debts');if(!root)return;
+      state.debts=(Array.isArray(state.debts)?state.debts:[]).map(normalizeDebt);
+      const key=debtSelectedKey(),total=allDebtTotal(),remaining=allDebtRemaining(),monthlyDue=debtDueForMonth(key),monthlyPaid=debtPaidForMonth(key),open=state.debtAddOpen;
+      root.innerHTML=`<div class="section-stack"><section class="hero debt-hero"><div class="hero-label">НИЙТ ҮЛДЭГДЭЛ ЗЭЭЛ</div><div class="hero-value mono">${fmt(remaining)}<span class="cur">₮</span></div><div class="debt-hero-meta"><span class="debt-hero-chip">Анхны нийт дүн <b>${fmt(total)}₮</b></span><span class="debt-hero-chip">${state.debtMonth}-р сарын төлөх <b>${fmt(monthlyDue)}₮</b></span></div></section><button class="debt-primary" data-act="open-debt-add">＋ Шинэ зээл нэмэх</button>${debtMonthCalendar()}${debtMonthSummary(key)}${open?`<section class="card debt-add-card"><div class="debt-add-heading"><h3>Зээлийн мэдээлэл оруулах</h3><button class="debt-close" data-act="close-debt-add">Болих</button></div><div class="debt-form-grid"><label class="field full"><span>Зээлийн нэр</span><input id="debtName" type="text" placeholder="ж: Автомашины зээл" maxlength="60"></label><label class="field"><span>Банкны нэр</span><input id="debtBankName" type="text" placeholder="ж: Хаан банк" maxlength="60"></label><label class="field"><span>Дансны нэр</span><input id="debtAccountName" type="text" placeholder="ж: Цалингийн данс" maxlength="60"></label><label class="field full"><span>Дансны дугаар <i>(заавал биш)</i></span><input id="debtAccountNo" type="text" inputmode="numeric" placeholder="ж: 5000123456789012" maxlength="34"></label><label class="field"><span>Эхлэх сар</span><input id="debtStartMonth" type="month" value="${debtSelectedKey()}"></label><label class="field"><span>Нийт үлдэгдэл зээл</span><input id="debtTotal" type="number" min="1" inputmode="numeric" placeholder="ж: 12000000"></label><label class="field full"><span>Сарын төлөлт</span><input id="debtMonthly" type="number" min="1" inputmode="numeric" placeholder="ж: 500000"></label></div><div class="debt-form-tip">Банк, дансны нэр болон дансны дугаар нь зээлийн card дээр хамт харагдана. Сарын tab сонгоод, тухайн сарын төлөлт дээр дарж бүртгэдэг.</div><button class="debt-primary" data-act="save-debt" style="width:100%">Зээл хадгалах</button></section>`:''}<section><div class="tab-title-row"><h3 class="card-title">${debtMonthLabel(key)}-ийн зээлүүд</h3><span class="right-info">${monthlyPaid?fmt(monthlyPaid)+'₮ төлсөн':''}${monthlyPaid&&state.debts.length?' · ':''}${state.debts.length} зээл</span></div>${state.debts.length?`<div class="debt-list">${state.debts.map(d=>debtCard(d,key)).join('')}</div>`:`<div class="debt-empty"><div class="debt-empty-icon">₮</div><b>Зээлийн бүртгэл хоосон байна</b><p>Зээлийн нэр, банкны данс, нийт үлдэгдэл, сарын төлөлтөө оруулаад сар бүрийн tab дээрээс төлөлтөө тэмдэглэж яваарай.</p></div>`}</section><p class="debt-note"><b>Тайлбар:</b> Сонгосон сар дээрх төлөлтийг тэмдэглэхэд тухайн дүн нийт үлдэгдлээс автоматаар хасагдана. Төлсөн төлөв дээр дахин дарвал буцааж болно.</p></div>`;
+    }
+    document.addEventListener('click',e=>{
+      const action=e.target.closest('[data-act]')?.dataset.act;
+      if(action==='retry-current-tab'){render();return;}
+      if(action==='debt-prev-year'){state.debtYear--;render();return;}
+      if(action==='debt-next-year'){state.debtYear++;render();return;}
+      if(action==='debt-go-current'){const now=new Date();state.debtYear=now.getFullYear();state.debtMonth=now.getMonth()+1;render();return;}
+      if(action==='open-debt-add'){state.debtAddOpen=true;render();setTimeout(()=>$('#debtName')?.focus(),0);return;}
+      if(action==='close-debt-add'){state.debtAddOpen=false;renderDebtTracker();return;}
+      if(action==='save-debt'){
+        const name=$('#debtName')?.value.trim()||'',bankName=$('#debtBankName')?.value.trim()||'',accountName=$('#debtAccountName')?.value.trim()||'',accountNo=$('#debtAccountNo')?.value.trim()||'';
+        const total=num($('#debtTotal')?.value),monthly=num($('#debtMonthly')?.value),startMonth=$('#debtStartMonth')?.value||debtSelectedKey();
+        if(!name||!total||!monthly){alert('Зээлийн нэр, нийт үлдэгдэл болон сарын төлөлтөө оруулна уу.');return;}
+        state.debts.push(normalizeDebt({id:'debt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name,bankName,accountName,accountNo,total,monthly,startMonth,paid:[]}));
+        const [y,m]=startMonth.split('-').map(Number);state.debtYear=y;state.debtMonth=m;saveDebts();state.debtAddOpen=false;render();return;
+      }
+      const monthTab=e.target.closest('[data-debt-month]');
+      if(monthTab){const key=String(monthTab.dataset.debtMonth||'');const m=key.match(/^(\d{4})-(\d{2})$/);if(m){state.debtYear=Number(m[1]);state.debtMonth=Number(m[2]);render();}return;}
+      const toggle=e.target.closest('[data-debt-toggle]');
+      if(toggle){const id=toggle.dataset.debtToggle,idx=Number(toggle.dataset.debtIndex),d=state.debts.find(x=>x.id===id);if(d&&Number.isInteger(idx)&&idx>=0&&idx<debtMonths(d)){d.paid[idx]=!d.paid[idx];saveDebts();render();}return;}
+      const remove=e.target.closest('[data-debt-delete]');
+      if(remove){const d=state.debts.find(x=>x.id===remove.dataset.debtDelete);if(d&&confirm(`“${d.name}” зээлийн бүртгэлийг устгах уу?`)){state.debts=state.debts.filter(x=>x.id!==d.id);saveDebts();render();}return;}
+    });
+
+    render();
+  })();
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./service-worker.js').catch(function (error) {
+          console.warn('Service worker registration failed:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
