@@ -1,12 +1,12 @@
-const CACHE_NAME = 'geriin-sanhuu-pwa-v6';
+const CACHE_NAME = 'geriin-sanhuu-pwa-v7';
 
 const APP_SHELL = [
-  './',
-  './index.html',
-  './manifest.webmanifest',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png'
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -49,14 +49,14 @@ self.addEventListener('fetch', (event) => {
           const copy = response.clone();
 
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put('./index.html', copy);
+            cache.put('/index.html', copy);
           });
 
           return response;
         })
         .catch(() =>
-          caches.match('./index.html')
-            .then((cached) => cached || caches.match('./'))
+          caches.match('/index.html')
+            .then((cached) => cached || caches.match('/'))
         )
     );
 
