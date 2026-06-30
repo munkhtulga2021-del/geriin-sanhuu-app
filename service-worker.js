@@ -1,4 +1,4 @@
-const CACHE_NAME = 'geriin-sanhuu-pwa-v7';
+const CACHE_NAME = 'geriin-sanhuu-pwa-v8';
 
 const APP_SHELL = [
   '/',
