@@ -1,4 +1,4 @@
-const CACHE_NAME = 'geriin-sanhuu-pwa-v4';
+const CACHE_NAME = 'geriin-sanhuu-pwa-v5';
 
 const APP_SHELL = [
   './',
@@ -20,11 +20,17 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(
-        keys
-          .filter((key) => key.startsWith('geriin-sanhuu-pwa-') && key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      ))
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter(
+              (key) =>
+                key.startsWith('geriin-sanhuu-pwa-') &&
+                key !== CACHE_NAME
+            )
+            .map((key) => caches.delete(key))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
@@ -36,11 +42,9 @@ self.addEventListener('fetch', (event) => {
 
   if (url.origin !== self.location.origin) return;
 
-  // Шинэ хувилбар байвал эхлээд серверээс авна.
-  // Интернетгүй үед хадгалсан app shell ажиллана.
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const copy = response.clone();
 
