@@ -336,6 +336,15 @@
     .debt-bank-option-name{min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.debt-bank-selected{display:flex;align-items:center;gap:6px;margin-top:9px;padding:7px 8px;border-radius:9px;background:#edf4ff;color:#42618f;font-size:10.5px;line-height:1.35}.debt-bank-selected b{color:#21498e}.debt-bank-selected .debt-bank-logo{width:22px;height:22px;border-radius:7px}.debt-bank-selected .debt-bank-logo img{padding:3px}
     .debt-bank-chip{padding:5px 8px 5px 5px}.debt-bank-chip .debt-bank-logo{width:23px;height:23px;border-radius:7px}.debt-bank-chip .debt-bank-logo img{padding:3px}.debt-bank-chip .debt-bank-logo-fallback{font-size:7.5px}
     .debt-bank-custom{margin-top:9px}.debt-bank-custom[hidden]{display:none!important}
+    /* Interest-aware repayment breakdown. */
+    .debt-interest-chip{border:1px solid #d5e2f6;background:#f4f8ff;color:#2c5b9d}
+    .debt-split-line{display:block;margin-top:3px;color:#7183a2;font-size:9.5px;line-height:1.35}
+    .debt-payment-breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .debt-payment-breakdown span{border:1px solid #dce7f6;background:#fff;border-radius:8px;padding:5px 7px;color:#54708e;font-size:9.5px;font-weight:760}
+    .debt-payment-breakdown b{color:#244d89;font-family:var(--mono)}
+    .debt-interest-warning{margin-top:9px;border:1px solid #f0d59b;background:#fff8e7;color:#87610a;border-radius:10px;padding:8px 9px;font-size:10px;line-height:1.45}
+    .debt-month-breakdown{margin-top:10px;color:#7082a1;font-size:10.5px;line-height:1.5}
+    .debt-month-breakdown b{color:#254d88;font-family:var(--mono)}
     @media(max-width:430px){.debt-bank-picker{padding:8px}.debt-bank-grid{gap:6px}.debt-bank-option{min-height:52px;padding:7px;gap:7px;font-size:10px}.debt-bank-logo{width:28px;height:28px}.debt-bank-picker-head{font-size:10px}}
 
   </style>
@@ -1159,73 +1168,98 @@
     }
     renderPrices = function(){ renderFuelCompact(); };
 
-    /* ==================== Advanced debt repayment tracker ==================== */
+    /* ==================== Interest-aware debt repayment tracker ==================== */
     const DEBT_STORE_KEY='gerdans-debt-tracker-v1';
     const DEBT_MONTH_NAMES=['1-р сар','2-р сар','3-р сар','4-р сар','5-р сар','6-р сар','7-р сар','8-р сар','9-р сар','10-р сар','11-р сар','12-р сар'];
+    const MAX_DEBT_SCHEDULE_MONTHS=600;
     const debtMonthKey=(start,index)=>{const m=String(start||monthOf(new Date())).match(/^(\d{4})-(\d{2})$/);const y=m?Number(m[1]):new Date().getFullYear(),mo=m?Number(m[2])-1:new Date().getMonth();const d=new Date(y,mo+index,1);return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;};
     const debtMonthLabel=(key)=>{const [y,m]=String(key||'').split('-').map(Number);return y&&m?`${y} оны ${m}-р сар`:key;};
     const debtSelectedKey=()=>`${state.debtYear}-${pad(state.debtMonth)}`;
     const num=(v)=>Math.max(0,Number(String(v??'').replace(/,/g,'').replace(/[^0-9.]/g,''))||0);
+
+    // Existing saved loans have no interestRate; they keep working as 0%-interest loans.
     function normalizeDebt(d){
-      const total=num(d?.total),monthly=num(d?.monthly);
+      const total=num(d?.total),monthly=num(d?.monthly),interestRate=num(d?.interestRate);
       const legacyBank=String(d?.lender||'').trim();
       const bankName=String(d?.bankName||legacyBank||'').trim();
       const bank=getDebtBank(d?.bankId,bankName);
-      return {...d,total,monthly,bankId:bank?.id||String(d?.bankId||'').trim(),bankName,accountName:String(d?.accountName||'').trim(),accountNo:String(d?.accountNo||'').trim(),paid:Array.isArray(d?.paid)?d.paid.map(Boolean):[],startMonth:/^\d{4}-\d{2}$/.test(String(d?.startMonth||''))?d.startMonth:monthOf(new Date())};
+      return {...d,total,monthly,interestRate,bankId:bank?.id||String(d?.bankId||'').trim(),bankName,accountName:String(d?.accountName||'').trim(),accountNo:String(d?.accountNo||'').trim(),paid:Array.isArray(d?.paid)?d.paid.map(Boolean):[],startMonth:/^\d{4}-\d{2}$/.test(String(d?.startMonth||''))?d.startMonth:monthOf(new Date())};
     }
-    function debtMonths(d){const n=normalizeDebt(d);return n.monthly>0?Math.max(1,Math.ceil(n.total/n.monthly)):0;}
-    function debtPaymentAt(d,index){const n=normalizeDebt(d);const before=n.monthly*index;return Math.max(0,Math.min(n.monthly,n.total-before));}
-    function debtPaidTotal(d){const n=normalizeDebt(d);return Array.from({length:debtMonths(n)},(_,i)=>n.paid[i]?debtPaymentAt(n,i):0).reduce((a,b)=>a+b,0);}
-    function debtRemaining(d){const n=normalizeDebt(d);return Math.max(0,n.total-debtPaidTotal(n));}
-    function debtProgress(d){const n=normalizeDebt(d);return n.total>0?Math.min(100,Math.round(debtPaidTotal(n)/n.total*100)):0;}
+
+    // For every scheduled month, payment is first used for interest, then the remainder reduces principal.
+    function debtSchedule(d){
+      const n=normalizeDebt(d),rows=[];
+      let balance=n.total;
+      const monthlyRate=n.interestRate/100;
+      if(!balance||!n.monthly)return rows;
+      for(let i=0;i<MAX_DEBT_SCHEDULE_MONTHS&&balance>0.005;i++){
+        const interest=Math.max(0,balance*monthlyRate);
+        const principal=Math.min(balance,Math.max(0,n.monthly-interest));
+        const payment=interest+principal;
+        const stalled=principal<=0.005&&balance>0.005;
+        rows.push({index:i,balanceBefore:balance,interest,principal,payment,balanceAfter:Math.max(0,balance-principal),stalled});
+        balance=Math.max(0,balance-principal);
+        if(stalled)break;
+      }
+      return rows;
+    }
+    function debtMonths(d){return debtSchedule(d).length;}
+    function debtRowAt(d,index){return debtSchedule(d)[index]||null;}
+    function debtPaymentAt(d,index){return debtRowAt(d,index)?.payment||0;}
+    function debtInterestAt(d,index){return debtRowAt(d,index)?.interest||0;}
+    function debtPrincipalAt(d,index){return debtRowAt(d,index)?.principal||0;}
+    function debtPaidPaymentTotal(d){const n=normalizeDebt(d),schedule=debtSchedule(n);return schedule.reduce((sum,row,i)=>sum+(n.paid[i]?row.payment:0),0);}
+    function debtPaidPrincipalTotal(d){const n=normalizeDebt(d),schedule=debtSchedule(n);return schedule.reduce((sum,row,i)=>sum+(n.paid[i]?row.principal:0),0);}
+    function debtRemaining(d){const n=normalizeDebt(d);return Math.max(0,n.total-debtPaidPrincipalTotal(n));}
+    function debtProgress(d){const n=normalizeDebt(d);return n.total>0?Math.min(100,Math.round(debtPaidPrincipalTotal(n)/n.total*100)):0;}
     function debtIndexForMonth(d,key){const n=normalizeDebt(d),count=debtMonths(n);for(let i=0;i<count;i++)if(debtMonthKey(n.startMonth,i)===key)return i;return -1;}
     function debtMonthInfo(d,key=debtSelectedKey()){
-      const n=normalizeDebt(d),index=debtIndexForMonth(n,key);
-      if(index<0)return {index:-1,amount:0,paid:false,applicable:false};
-      return {index,amount:debtPaymentAt(n,index),paid:!!n.paid[index],applicable:true};
+      const n=normalizeDebt(d),index=debtIndexForMonth(n,key),row=debtRowAt(n,index);
+      if(index<0||!row)return {index:-1,amount:0,interest:0,principal:0,paid:false,applicable:false};
+      return {index,amount:row.payment,interest:row.interest,principal:row.principal,balanceBefore:row.balanceBefore,balanceAfter:row.balanceAfter,stalled:row.stalled,paid:!!n.paid[index],applicable:true};
     }
     function debtCountForMonth(key){return (state.debts||[]).reduce((count,d)=>count+(debtIndexForMonth(d,key)>=0?1:0),0);}
     function debtDueForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable?info.amount:0);},0);}
+    function debtInterestDueForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable?info.interest:0);},0);}
+    function debtPrincipalDueForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable?info.principal:0);},0);}
     function debtPaidForMonth(key){return (state.debts||[]).reduce((sum,d)=>{const info=debtMonthInfo(d,key);return sum+(info.applicable&&info.paid?info.amount:0);},0);}
     function saveDebts(){state.debts=(Array.isArray(state.debts)?state.debts:[]).map(normalizeDebt);store.set(DEBT_STORE_KEY,state.debts);}
     function allDebtTotal(){return (state.debts||[]).reduce((s,d)=>s+normalizeDebt(d).total,0);}
     function allDebtRemaining(){return (state.debts||[]).reduce((s,d)=>s+debtRemaining(d),0);}
+
     function debtScheduleRows(d){
-      const n=normalizeDebt(d),totalMonths=debtMonths(n),selected=debtSelectedKey();
-      return Array.from({length:totalMonths},(_,i)=>{
-        const key=debtMonthKey(n.startMonth,i),paid=!!n.paid[i],amount=debtPaymentAt(n,i),isSelected=key===selected;
+      const n=normalizeDebt(d),schedule=debtSchedule(n),selected=debtSelectedKey();
+      return schedule.map((row,i)=>{
+        const key=debtMonthKey(n.startMonth,i),paid=!!n.paid[i],isSelected=key===selected;
         const label=debtMonthLabel(key),stateLabel=paid?'Төлсөн':isSelected?'Сонгосон':'Төлөөгүй';
-        return `<button type="button" class="debt-schedule-row ${paid?'paid':''} ${isSelected?'selected':''}" data-debt-month="${key}"><span class="debt-schedule-date">${label}</span><b class="debt-schedule-amount">${fmt(amount)}₮</b><span class="debt-schedule-state">${stateLabel}</span></button>`;
+        return `<button type="button" class="debt-schedule-row ${paid?'paid':''} ${isSelected?'selected':''}" data-debt-month="${key}"><span class="debt-schedule-date">${label}<small class="debt-split-line">Хүү ${fmt(row.interest)}₮ · Үндсэнд ${fmt(row.principal)}₮</small></span><b class="debt-schedule-amount">${fmt(row.payment)}₮</b><span class="debt-schedule-state">${stateLabel}</span></button>`;
       }).join('');
     }
     function debtMonthCalendar(){
       const selected=debtSelectedKey(),now=monthOf(new Date());
       const tabs=Array.from({length:12},(_,i)=>{
-        const key=`${state.debtYear}-${pad(i+1)}`,due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),isDone=count>0&&paid>=due&&due>0;
+        const key=`${state.debtYear}-${pad(i+1)}`,due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),isDone=count>0&&paid>=due-0.5;
         const label=count?`${count} зээл`:'Төлөлт алга';
         return `<button class="debt-month-tab ${key===selected?'active':''} ${key===now?'current':''} ${isDone?'done':''}" data-debt-month="${key}" aria-label="${debtMonthLabel(key)}"><small>${DEBT_MONTH_NAMES[i]}</small><b>${count?fmt(due)+'₮':'—'}</b><span>${isDone?'Бүгд төлсөн':label}</span></button>`;
       }).join('');
       return `<section class="card debt-calendar"><div class="debt-calendar-head"><div><span class="debt-calendar-eyebrow">ТӨЛӨЛТИЙН КАЛЕНДАР</span><h3 class="debt-calendar-title">${state.debtYear} он</h3></div><div class="debt-year-tools"><button class="debt-year-button" data-act="debt-prev-year" aria-label="Өмнөх жил">‹</button><button class="debt-current-button" data-act="debt-go-current">Энэ сар</button><button class="debt-year-button" data-act="debt-next-year" aria-label="Дараагийн жил">›</button></div></div><div class="debt-month-grid">${tabs}</div><div class="debt-calendar-help"><b>Сар сонго:</b> тухайн сар дээр дараад, тэр сарын төлөлтийг тус бүрээр нь бүртгэнэ.</div></section>`;
     }
     function debtMonthSummary(key){
-      const due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),left=Math.max(0,due-paid);
-      return `<section class="debt-month-summary"><div class="debt-month-summary-top"><div><div class="debt-month-summary-label">СОНГОСОН ТӨЛӨЛТИЙН САР</div><div class="debt-month-summary-title">${debtMonthLabel(key)}</div></div><span class="debt-month-summary-count">${count} зээл</span></div><div class="debt-month-stats"><div class="debt-month-stat"><span>Төлөх дүн</span><b>${fmt(due)}₮</b></div><div class="debt-month-stat paid"><span>Төлөгдсөн</span><b>${fmt(paid)}₮</b></div></div>${count?`<div style="margin-top:10px;font-size:10.5px;color:#7082a1">Үлдсэн сарын төлбөр: <b style="color:#254d88;font-family:var(--mono)">${fmt(left)}₮</b></div>`:`<div style="margin-top:10px;font-size:10.5px;color:#7082a1">Энэ сард төлөх хуваарьтай зээл алга.</div>`}</section>`;
+      const due=debtDueForMonth(key),paid=debtPaidForMonth(key),count=debtCountForMonth(key),interest=debtInterestDueForMonth(key),principal=debtPrincipalDueForMonth(key),left=Math.max(0,due-paid);
+      return `<section class="debt-month-summary"><div class="debt-month-summary-top"><div><div class="debt-month-summary-label">СОНГОСОН ТӨЛӨЛТИЙН САР</div><div class="debt-month-summary-title">${debtMonthLabel(key)}</div></div><span class="debt-month-summary-count">${count} зээл</span></div><div class="debt-month-stats"><div class="debt-month-stat"><span>Төлөх дүн</span><b>${fmt(due)}₮</b></div><div class="debt-month-stat paid"><span>Төлөгдсөн</span><b>${fmt(paid)}₮</b></div></div>${count?`<div class="debt-month-breakdown">Энэ сарын төлбөрөөс: <b>Хүү ${fmt(interest)}₮</b> · <b>Үндсэнд ${fmt(principal)}₮</b><br>Үлдсэн сарын төлбөр: <b>${fmt(left)}₮</b></div>`:`<div class="debt-month-breakdown">Энэ сард төлөх хуваарьтай зээл алга.</div>`}</section>`;
     }
     function debtCard(d,key=debtSelectedKey()){
-      const n=normalizeDebt(d),months=debtMonths(n),remaining=debtRemaining(n),progress=debtProgress(n),info=debtMonthInfo(n,key);
-      const label=(n.name||'Зээл').trim(),bank=(n.bankName||n.lender||'Банк заагаагүй').trim(),accountName=(n.accountName||'Дансны нэр оруулаагүй').trim();
-      const bankMeta=getDebtBank(n.bankId,bank);
-      const initials=(label[0]||'₮').toUpperCase();
+      const n=normalizeDebt(d),months=debtMonths(n),remaining=debtRemaining(n),progress=debtProgress(n),info=debtMonthInfo(n,key),bankMeta=getDebtBank(n.bankId,n.bankName),bank=n.bankName||bankMeta?.name||'Банк сонгоогүй',accountName=n.accountName||'Дансны нэр оруулаагүй',label=n.name||'Нэргүй зээл',initials=(label.trim()[0]||'₮').toUpperCase(),principalPaid=debtPaidPrincipalTotal(n);
       const paymentPanel=!info.applicable
         ? `<div class="debt-selected-payment"><div class="debt-payment-not-due"><b>${debtMonthLabel(key)}</b> дээр энэ зээлийн төлөлт байхгүй. Зээлийн эхлэх сар: ${debtMonthLabel(n.startMonth)}.</div></div>`
-        : `<div class="debt-selected-payment"><div class="debt-selected-payment-head"><span>${debtMonthLabel(key)} · ${info.paid?'төлөлт бүртгэгдсэн':'төлөлт хүлээгдэж байна'}</span><b>${fmt(info.amount)}₮</b></div><button class="debt-payment-toggle ${info.paid?'paid':''}" data-debt-toggle="${h(n.id)}" data-debt-index="${info.index}" aria-label="${info.paid?'Төлөлтийг буцаах':'Төлсөн гэж бүртгэх'}"><span class="left"><b>${info.paid?'Төлсөн гэж бүртгэгдсэн':'Энэ сарын төлөлт'}</b><span>${info.paid?'Дахин дарвал төлөлт буцна':'Дарж төлсөн гэж бүртгэнэ'}</span></span><span class="right">${info.paid?'✓ Төлсөн':'Төлсөн гэж тэмдэглэх'}</span></button></div>`;
-      return `<article class="debt-card"><div class="debt-card-top"><div class="debt-title-row"><span class="debt-avatar">${h(initials)}</span><div class="debt-title-copy"><div class="debt-name">${h(label)}</div><div class="debt-lender">${months} сарын хуваарь · ${progress}% төлөгдсөн</div></div></div><button class="debt-delete" data-debt-delete="${h(n.id)}" title="Зээл устгах">⌫</button></div><div class="debt-bank-account"><span class="debt-bank-chip">${debtBankLogoMarkup(bankMeta,'debt-bank-chip-logo')}<span>${h(bank)}</span></span><span class="debt-account-chip">▣ ${h(accountName)}</span></div>${n.accountNo?`<div class="debt-account-no">Данс: <b>${h(n.accountNo)}</b></div>`:''}<div class="debt-card-numbers"><div class="debt-number"><span>Үлдэгдэл</span><b>${fmt(remaining)}₮</b></div><div class="debt-number"><span>Сарын төлөлт</span><b class="small">${fmt(n.monthly)}₮</b></div></div><div class="debt-progress-wrap"><div class="debt-progress-row"><span>${progress}% төлөгдсөн</span><b>${fmt(debtPaidTotal(n))}₮ / ${fmt(n.total)}₮</b></div><div class="debt-progress"><i style="width:${progress}%"></i></div></div>${paymentPanel}<details class="debt-schedule"><summary>Сар бүрийн хуваарь <span>${months} сар</span></summary><div class="debt-schedule-list">${debtScheduleRows(n)}</div></details></article>`;
+        : `<div class="debt-selected-payment"><div class="debt-selected-payment-head"><span>${debtMonthLabel(key)} · ${info.paid?'төлөлт бүртгэгдсэн':'төлөлт хүлээгдэж байна'}</span><b>${fmt(info.amount)}₮</b></div><button class="debt-payment-toggle ${info.paid?'paid':''}" data-debt-toggle="${h(n.id)}" data-debt-index="${info.index}" aria-label="${info.paid?'Төлөлтийг буцаах':'Төлсөн гэж бүртгэх'}"><span class="left"><b>${info.paid?'Төлсөн гэж бүртгэгдсэн':'Энэ сарын төлөлт'}</b><span>${info.paid?'Дахин дарвал төлөлт буцна':'Дарж төлсөн гэж бүртгэнэ'}</span></span><span class="right">${info.paid?'✓ Төлсөн':'Төлсөн гэж тэмдэглэх'}</span></button><div class="debt-payment-breakdown"><span>Хүү <b>${fmt(info.interest)}₮</b></span><span>Үндсэн зээлд <b>${fmt(info.principal)}₮</b></span></div>${info.stalled?`<div class="debt-interest-warning">Сарын төлөлт хүүгээс бага тул үндсэн зээл буурахгүй байна.</div>`:''}</div>`;
+      return `<article class="debt-card"><div class="debt-card-top"><div class="debt-title-row"><span class="debt-avatar">${h(initials)}</span><div class="debt-title-copy"><div class="debt-name">${h(label)}</div><div class="debt-lender">${months} сарын хуваарь · үндсэн зээлийн ${progress}% төлөгдсөн</div></div></div><button class="debt-delete" data-debt-delete="${h(n.id)}" title="Зээл устгах">⌫</button></div><div class="debt-bank-account"><span class="debt-bank-chip">${debtBankLogoMarkup(bankMeta,'debt-bank-chip-logo')}<span>${h(bank)}</span></span><span class="debt-account-chip">▣ ${h(accountName)}</span><span class="debt-account-chip debt-interest-chip">Хүү ${fmtRate(n.interestRate)}% / сар</span></div>${n.accountNo?`<div class="debt-account-no">Данс: <b>${h(n.accountNo)}</b></div>`:''}<div class="debt-card-numbers"><div class="debt-number"><span>Үлдсэн үндсэн зээл</span><b>${fmt(remaining)}₮</b></div><div class="debt-number"><span>Сарын төлөлт</span><b class="small">${fmt(n.monthly)}₮</b></div></div><div class="debt-progress-wrap"><div class="debt-progress-row"><span>Үндсэн зээлийн ${progress}% төлөгдсөн</span><b>${fmt(principalPaid)}₮ / ${fmt(n.total)}₮</b></div><div class="debt-progress"><i style="width:${progress}%"></i></div></div>${paymentPanel}<details class="debt-schedule"><summary>Сар бүрийн хуваарь <span>${months} сар</span></summary><div class="debt-schedule-list">${debtScheduleRows(n)}</div></details></article>`;
     }
     function renderDebtTracker(){
       const root=$('#tab-debts');if(!root)return;
       state.debts=(Array.isArray(state.debts)?state.debts:[]).map(normalizeDebt);
       const key=debtSelectedKey(),total=allDebtTotal(),remaining=allDebtRemaining(),monthlyDue=debtDueForMonth(key),monthlyPaid=debtPaidForMonth(key),open=state.debtAddOpen;
-      root.innerHTML=`<div class="section-stack"><section class="hero debt-hero"><div class="hero-label">НИЙТ ҮЛДЭГДЭЛ ЗЭЭЛ</div><div class="hero-value mono">${fmt(remaining)}<span class="cur">₮</span></div><div class="debt-hero-meta"><span class="debt-hero-chip">Анхны нийт дүн <b>${fmt(total)}₮</b></span><span class="debt-hero-chip">${state.debtMonth}-р сарын төлөх <b>${fmt(monthlyDue)}₮</b></span></div></section><button class="debt-primary" data-act="open-debt-add">＋ Шинэ зээл нэмэх</button>${debtMonthCalendar()}${debtMonthSummary(key)}${open?`<section class="card debt-add-card" id="debtAddForm"><div class="debt-add-heading"><h3>Зээлийн мэдээлэл оруулах</h3><button class="debt-close" data-act="close-debt-add">Болих</button></div><div class="debt-form-grid"><label class="field full"><span>Зээлийн нэр</span><input id="debtName" type="text" placeholder="ж: Автомашины зээл" maxlength="60"></label><div class="field full"><span>Зээл авсан банк</span><input id="debtBankId" type="hidden" value=""><input id="debtBankName" type="hidden" value=""><div id="debtBankPicker" class="debt-bank-picker">${debtBankPickerMarkup()}</div><div id="debtBankSelected" class="debt-bank-selected">🏦 <span>Банк сонгоогүй байна</span></div><label id="debtBankCustomWrap" class="field debt-bank-custom" hidden><span>Бусад банк / ББСБ-ийн нэр</span><input id="debtBankCustom" type="text" placeholder="ж: ББСБ-ийн нэр" maxlength="60"></label></div><label class="field"><span>Дансны нэр</span><input id="debtAccountName" type="text" placeholder="ж: Цалингийн данс" maxlength="60"></label><label class="field"><span>Эхлэх сар</span><input id="debtStartMonth" type="month" value="${debtSelectedKey()}"></label><label class="field full"><span>Дансны дугаар <i>(заавал биш)</i></span><input id="debtAccountNo" type="text" inputmode="numeric" placeholder="ж: 5000123456789012" maxlength="34"></label><label class="field"><span>Нийт үлдэгдэл зээл</span><input id="debtTotal" type="number" min="1" inputmode="numeric" placeholder="ж: 12000000"></label><label class="field"><span>Сарын төлөлт</span><input id="debtMonthly" type="number" min="1" inputmode="numeric" placeholder="ж: 500000"></label></div><div class="debt-form-tip">“Шинэ зээл нэмэх” дээр дарахад энэ хэсэг рүү автоматаар гүйлгэнэ. Банкны лого дээр дарж сонгоорой. Сонгосон банк зээлийн card дээр логотойгоор харагдана.</div><button class="debt-primary" data-act="save-debt" style="width:100%">Зээл хадгалах</button></section>`:''}<section><div class="tab-title-row"><h3 class="card-title">${debtMonthLabel(key)}-ийн зээлүүд</h3><span class="right-info">${monthlyPaid?fmt(monthlyPaid)+'₮ төлсөн':''}${monthlyPaid&&state.debts.length?' · ':''}${state.debts.length} зээл</span></div>${state.debts.length?`<div class="debt-list">${state.debts.map(d=>debtCard(d,key)).join('')}</div>`:`<div class="debt-empty"><div class="debt-empty-icon">₮</div><b>Зээлийн бүртгэл хоосон байна</b><p>Зээлийн нэр, банкны данс, нийт үлдэгдэл, сарын төлөлтөө оруулаад сар бүрийн tab дээрээс төлөлтөө тэмдэглэж яваарай.</p></div>`}</section><p class="debt-note"><b>Тайлбар:</b> Сонгосон сар дээрх төлөлтийг тэмдэглэхэд тухайн дүн нийт үлдэгдлээс автоматаар хасагдана. Төлсөн төлөв дээр дахин дарвал буцааж болно.</p></div>`;
+      root.innerHTML=`<div class="section-stack"><section class="hero debt-hero"><div class="hero-label">НИЙТ ҮЛДЭГДЭЛ ҮНДСЭН ЗЭЭЛ</div><div class="hero-value mono">${fmt(remaining)}<span class="cur">₮</span></div><div class="debt-hero-meta"><span class="debt-hero-chip">Нийт үндсэн дүн <b>${fmt(total)}₮</b></span><span class="debt-hero-chip">${state.debtMonth}-р сарын төлөх <b>${fmt(monthlyDue)}₮</b></span></div></section><button class="debt-primary" data-act="open-debt-add">＋ Шинэ зээл нэмэх</button>${debtMonthCalendar()}${debtMonthSummary(key)}${open?`<section class="card debt-add-card" id="debtAddForm"><div class="debt-add-heading"><h3>Зээлийн мэдээлэл оруулах</h3><button class="debt-close" data-act="close-debt-add">Болих</button></div><div class="debt-form-grid"><label class="field full"><span>Зээлийн нэр</span><input id="debtName" type="text" placeholder="ж: Автомашины зээл" maxlength="60"></label><div class="field full"><span>Зээл авсан банк</span><input id="debtBankId" type="hidden" value=""><input id="debtBankName" type="hidden" value=""><div id="debtBankPicker" class="debt-bank-picker">${debtBankPickerMarkup()}</div><div id="debtBankSelected" class="debt-bank-selected">🏦 <span>Банк сонгоогүй байна</span></div><label id="debtBankCustomWrap" class="field debt-bank-custom" hidden><span>Бусад банк / ББСБ-ийн нэр</span><input id="debtBankCustom" type="text" placeholder="ж: ББСБ-ийн нэр" maxlength="60"></label></div><label class="field"><span>Дансны нэр</span><input id="debtAccountName" type="text" placeholder="ж: Цалингийн данс" maxlength="60"></label><label class="field"><span>Эхлэх сар</span><input id="debtStartMonth" type="month" value="${debtSelectedKey()}"></label><label class="field full"><span>Дансны дугаар <i>(заавал биш)</i></span><input id="debtAccountNo" type="text" inputmode="numeric" placeholder="ж: 5000123456789012" maxlength="34"></label><label class="field"><span>Үндсэн зээлийн үлдэгдэл</span><input id="debtTotal" type="number" min="1" inputmode="numeric" placeholder="ж: 12000000"></label><label class="field"><span>Сарын хүү <i>(%)</i></span><input id="debtInterestRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="ж: 2.5"></label><label class="field full"><span>Сарын нийт төлөлт</span><input id="debtMonthly" type="number" min="1" inputmode="numeric" placeholder="ж: 500000"></label></div><div class="debt-form-tip"><b>Яаж бодох вэ?</b> Сарын төлбөрөөс эхлээд тухайн сарын хүүг хасна. Үлдсэн дүн нь үндсэн зээлийн үлдэгдлийг бууруулна. Хүүг <b>сарын хувиар</b> оруулна: жишээ нь 2.5 гэвэл сарын 2.5%.</div><button class="debt-primary" data-act="save-debt" style="width:100%">Зээл хадгалах</button></section>`:''}<section><div class="tab-title-row"><h3 class="card-title">${debtMonthLabel(key)}-ийн зээлүүд</h3><span class="right-info">${monthlyPaid?fmt(monthlyPaid)+'₮ төлсөн':''}${monthlyPaid&&state.debts.length?' · ':''}${state.debts.length} зээл</span></div>${state.debts.length?`<div class="debt-list">${state.debts.map(d=>debtCard(d,key)).join('')}</div>`:`<div class="debt-empty"><div class="debt-empty-icon">₮</div><b>Зээлийн бүртгэл хоосон байна</b><p>Зээлийн нэр, банк, үндсэн үлдэгдэл, сарын хүү, сарын төлөлтөө оруулаад сар бүрийн tab дээрээс төлөлтөө тэмдэглэж яваарай.</p></div>`}</section><p class="debt-note"><b>Тайлбар:</b> Төлөлтийг тэмдэглэхэд тухайн сарын хүүг эхлээд тооцож, зөвхөн үлдсэн хэсгийг үндсэн зээлээс хасна. Энэ нь төлөвлөлтийн жишиг тооцоо бөгөөд банкны шимтгэл, алданги, өдөр тутмын хүү зэргээс бодит дүн өөр байж болно.</p></div>`;
     }
     document.addEventListener('click',e=>{
       const action=e.target.closest('[data-act]')?.dataset.act;
@@ -1262,9 +1296,11 @@
       }
       if(action==='save-debt'){
         const name=$('#debtName')?.value.trim()||'',bankId=$('#debtBankId')?.value.trim()||'',selectedBankName=$('#debtBankName')?.value.trim()||'',customBankName=$('#debtBankCustom')?.value.trim()||'',bankName=bankId==='other'?(customBankName||'Бусад банк / ББСБ'):selectedBankName,accountName=$('#debtAccountName')?.value.trim()||'',accountNo=$('#debtAccountNo')?.value.trim()||'';
-        const total=num($('#debtTotal')?.value),monthly=num($('#debtMonthly')?.value),startMonth=$('#debtStartMonth')?.value||debtSelectedKey();
-        if(!name||!bankName||!total||!monthly){alert('Зээлийн нэр, банк, нийт үлдэгдэл болон сарын төлөлтөө оруулна уу.');return;}
-        state.debts.push(normalizeDebt({id:'debt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name,bankId,bankName,accountName,accountNo,total,monthly,startMonth,paid:[]}));
+        const total=num($('#debtTotal')?.value),interestRate=num($('#debtInterestRate')?.value),monthly=num($('#debtMonthly')?.value),startMonth=$('#debtStartMonth')?.value||debtSelectedKey();
+        if(!name||!bankName||!total||!monthly){alert('Зээлийн нэр, банк, үндсэн үлдэгдэл болон сарын төлөлтөө оруулна уу.');return;}
+        const firstInterest=total*(interestRate/100);
+        if(interestRate>0&&monthly<=firstInterest){alert(`Сарын төлөлт эхний сарын хүүнээс их байх ёстой. Эхний сарын хүү ойролцоогоор ${fmt(firstInterest)}₮ байна.`);return;}
+        state.debts.push(normalizeDebt({id:'debt-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),name,bankId,bankName,accountName,accountNo,total,interestRate,monthly,startMonth,paid:[]}));
         const [y,m]=startMonth.split('-').map(Number);state.debtYear=y;state.debtMonth=m;saveDebts();state.debtAddOpen=false;render();return;
       }
       const monthTab=e.target.closest('[data-debt-month]');
