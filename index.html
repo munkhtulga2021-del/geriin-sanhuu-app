@@ -472,7 +472,7 @@
 
     const WD=['Ням','Даваа','Мягмар','Лхагва','Пүрэв','Баасан','Бямба'];
     const WD2=['Ня','Да','Мя','Лх','Пү','Ба','Бя'];
-    const LOAN_DATA_UPDATED = '2026-06-29';
+    const LOAN_DATA_UPDATED = '2026-06-30';
     /* Нөхцөлүүд нь үйлчилгээ үзүүлэгчдийн олон нийтэд гаргасан мэдээллээс оруулсан жишиг дата.
        Гэрээ байгуулахын өмнө тухайн аппын хамгийн сүүлийн нөхцөлийг заавал шалгана.
        Энэхүү загварын тооцоолуурын хугацаа бүх бүтээгдэхүүн дээр 1–60 сар; бизнес зээлийн дээд дүн 500 сая₮. */
@@ -504,8 +504,8 @@
         {id:'number',name:'Утасны дугаар барьцаалсан',kind:'Барьцаат',amountMin:3000000,amountMax:15000000,termMin:1,termMax:60,termUnit:'month',rateMin:3.0,rateMax:3.0,rateDefault:3.0,feeRate:1.0,repayment:'Сард 1 удаа',note:'Жишиг үнэлгээнд тэнцсэн дугаар барьцаална.'}
       ]},
       {id:'payon',name:'PayOn',short:'PayOn',logoDomain:'payon.mn',brand:'payon',desc:'Цахим зээл болон бараа бүтээгдэхүүнийг зээлээр худалдан авах үйлчилгээ',source:'https://payon.mn/',tags:['Онлайн','Хэрэглээний','Худалдан авалт'],products:[
-        {id:'digital',name:'Цахим зээл',kind:'Онлайн',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.9,rateMax:3.0,rateDefault:2.45,feeRate:0,repayment:'Сард 1 удаа',note:'Нийтэд ил тод тавигдсан нөхцөл: 50,000₮–5,000,000₮, 3–24 сар, сарын 1.9%–3.0%. Эрх, хүү нь үнэлгээнээс хамаарна.'},
-        {id:'leaseon',name:'LeaseOn худалдан авалтын зээл',kind:'Худалдан авалт',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:1.9,rateMax:3.0,rateDefault:2.45,feeRate:0,repayment:'Сард 1 удаа',note:'Хамтран ажиллагч дэлгүүрийн бараа, бүтээгдэхүүнийг зээлээр авах нөхцөлийг апп дотроос эцэслэн шалгана.'}
+        {id:'digital',name:'Цахим зээл',kind:'Онлайн',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:4.5,rateMax:4.5,rateDefault:4.5,feeRate:0,repayment:'Сард 1 удаа',note:'Энэ аппын тооцоолуурт тогтмол сарын 4.5% хүү ашиглана.'},
+        {id:'leaseon',name:'LeaseOn худалдан авалтын зээл',kind:'Худалдан авалт',amountMin:50000,amountMax:5000000,termMin:1,termMax:60,termUnit:'month',rateMin:4.5,rateMax:4.5,rateDefault:4.5,feeRate:0,repayment:'Сард 1 удаа',note:'Энэ аппын тооцоолуурт тогтмол сарын 4.5% хүү ашиглана.'}
       ]},
       {id:'simple',name:'Simple',short:'S',logoDomain:'simple.mn',brand:'simple',desc:'Дижитал, бизнес болон бусад төрлийн санхүүгийн үйлчилгээ',source:'https://simple.mn/digital',tags:['Онлайн','Хэрэглээний','Бизнес'],products:[
         {id:'digital',name:'Дижитал зээл',kind:'Онлайн',amountMin:50000,amountMax:35000000,termMin:1,termMax:60,termUnit:'month',rateMin:2.3,rateMax:3.9,rateDefault:3.1,feeRate:0,repayment:'Сард 1 удаа',note:'Тооцоолуурт 1–60 сар сонгож тооцно. Бодит дүн, хүү, хугацаа нь зээлжих эрхээс хамаарна.'},
@@ -1170,3 +1170,4 @@
   </script>
 </body>
 </html>
+  
